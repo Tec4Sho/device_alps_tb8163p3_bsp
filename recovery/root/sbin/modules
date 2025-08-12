@@ -1,0 +1,84 @@
+#!/sbin/sh
+# Touchscreen drivers (backup only) modules loader!!! 
+# Drivers are auto loaded by patched kernel for this.
+# Errors logging on recovery startup saved in cache/logs
+
+log='/cache/logs/twrp-recovery.log';
+i2c0=$(i2cdetect -l);
+i2c1=$(i2cdetect -F 0);
+i2c2=$(i2cdetect -y 0);
+driver='/cache/logs/modules.log';
+vendor='/vendor/lib/modules/';
+modules='focaltech.ko gsl37xx.ko hxchipset-i2c.ko hyn-cst3xx.ko ilitek.ko jadard_touch.ko sitronix_ts.ko synaptics_dsx.ko';
+
+load_modules() {
+	for name in $modules; 
+	do
+		busybox insmod $vendor${name} >> $driver 2>&1 2>&1;
+		sleep 0.5
+	done;
+	setprop modules.loaded 1 
+}
+
+	busybox >/dev/null 2>&1 || exit 1 
+	[[ ! -d $(dirname $log) ]] && mkdir -p /cache/logs;
+
+	if [ -f $log ]; then
+		mv -f $log ${log}.old;
+	fi;
+
+	if [ -f $driver ]; then
+		mv -f $driver ${driver}.old;
+	fi;
+
+	busybox mount -v / >> $driver || echo 'System partition already mounted' >> $driver;
+	busybox mount -v /vendor >> $driver || echo 'Vendor partition already mounted' >> $driver;
+	busybox mount -v /cache >> $driver || echo 'Cache partition already mounted' >> $driver;
+	
+	[ -d $vendor ] && [[ $(getprop modules.loaded) != '1' ]] && load_modules & wait
+	
+	echo '#' >> $driver;
+	echo 'Driver Check by I2C-TOOLS' >> $driver;
+	echo '#' >> $driver;
+	echo $i2c0 >> $driver 2>&1;
+	echo '#' >> $driver;
+	echo $i2c1 >> $driver 2>&1;
+	echo '#' >> $driver;
+	echo $i2c2 >> $driver 2>&1;
+	echo '#' >> $driver;
+	echo "Kernel driver - modules loaded: $(getprop modules.loaded)" >> $driver 2>&1;
+
+	if [[ $(getprop ro.debuggable) != '0' ]]; then
+		setprop persist.log.tag V
+		setprop persist.logd.logpersistd true
+		setprop ro.logd.kernel true
+		setprop logcat.live true
+		setprop ro.boot.meta_log_disable 0
+		echo '#' >> $log;
+		echo 'PROC MODULES ?' >> $log;
+		echo '#' >> $log;
+		cat /proc/modules >> $log 2>&1;
+		echo '#' >> $log;
+		echo 'LSMOD MODULES ?' >> $log;
+		echo '#' >> $log;
+		lsmod >> $log 2>&1;
+		echo '#' >> $log;
+		echo 'LOGCAT FULLY LOGGED ?' >> $log;
+		echo '#' >> $log;
+		/system/bin/logcat -d -b 'all' -f $log 2>&1 || echo 'logcat not running' >> $log;
+		echo '#' >> $log;
+		echo 'DMESG RECOVERY LOGGED ?' >> $log;
+		echo '#' >> $log;
+		dmesg -c >> $log;
+		echo '#' >> $log;
+		echo 'DMESG RECOVERY 50-SEC LOG LIVE ?' >> $log;
+		echo '#' >> $log;
+		echo -e "                    <!# Dmesg live kernel logging in recovery mode started #!>" >> $driver;
+		sleep 50
+		dmesg -r >> $log;
+	fi;
+	
+	echo '#' >> $driver;
+	echo "Script execution completed $(date)" >> $driver 2>&1;
+
+	exit 0

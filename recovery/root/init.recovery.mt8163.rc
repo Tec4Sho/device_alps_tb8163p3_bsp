@@ -1,0 +1,114 @@
+on early-init
+	mount ext4 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/vendor /vendor ro wait
+    exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -a -d \
+        /vendor/lib/modules carstatus.ko cd3313.ko ak7604.ko fy7604.ko hxchipset-i2c.ko focaltech.ko betterlife_ts.ko jadard_touch.ko hyn_cst3xx.ko atmel_mxt_ts.ko synaptics_dsx.ko ilitek.ko gsl37xx.ko si475x.ko tp2825.ko tp9951.ko tp9950.ko qn8035.ko qn8027.ko tda7708LX.ko  
+
+on init
+    setprop sys.usb.controller musb-hdrc
+    start insmodc
+
+#	fake to CDP case
+#	write /sys/module/musb_hdrc/parameters/musb_skip_charge_detect 1
+
+# 	set battery thread free
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0E8D
+    write /sys/class/android_usb/android0/idProduct 2008
+    write /sys/class/android_usb/android0/functions mtp
+    write /sys/class/android_usb/android0/enable 1
+
+#	make this twice to keep following action not race with battery thread
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0E8D
+    write /sys/class/android_usb/android0/idProduct 2008
+    write /sys/class/android_usb/android0/functions mtp
+    write /sys/class/android_usb/android0/enable 1
+
+# 	distinguish USB shoulde connect or not by this, CDP vs SDP
+	write /sys/devices/platform/mt_usb/cmode 2
+
+on property:ro.debuggable=1
+# 	restore cmode to normal for making USB enumeration
+	write /sys/devices/platform/mt_usb/cmode 1
+
+on fs
+    write /proc/bootprof "INIT:Mount_START"
+    mkdir /dev/block/platform/mtk-msdc.0
+    symlink ../soc/11230000.mmc /dev/block/platform/mtk-msdc.0/11230000.MSDC0
+
+	mount_all /etc/fstab --early 
+	mount ext4 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/system / ro wait
+	mount ext4 /dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/cache /cache rw wait
+    
+    write /proc/bootprof "INIT:Mount_END"
+    write /proc/sys/vm/page-cluster 0
+	write /dev/event-log-tags "# content owned by logd"
+    chown logd logd /dev/event-log-tags
+    chmod 0644 /dev/event-log-tags
+
+	insmod /vendor/lib/modules/carstatus.ko
+    insmod /vendor/lib/modules/cd3313.ko
+    insmod /vendor/lib/modules/ak7604.ko channel_gain=${ro.hw.ak7604.gain:-2,-2,2,0}
+    insmod /vendor/lib/modules/fy7604.ko channel_gain=${ro.hw.fy7604.gain:--2,-8,-3,0}
+    insmod /vendor/lib/modules/hxchipset-i2c.ko
+    insmod /vendor/lib/modules/focaltech.ko
+    insmod /vendor/lib/modules/betterlife_ts.ko
+    insmod /vendor/lib/modules/jadard_touch.ko
+    insmod /vendor/lib/modules/hyn_cst3xx.ko
+    insmod /vendor/lib/modules/atmel_mxt_ts.ko
+    insmod /vendor/lib/modules/synaptics_dsx.ko
+    insmod /vendor/lib/modules/sitronix-ts.ko
+    insmod /vendor/lib/modules/ilitek.ko
+    insmod /vendor/lib/modules/gsl37xx.ko
+    insmod /vendor/lib/modules/si475x.ko
+    insmod /vendor/lib/modules/tp2825.ko
+    insmod /vendor/lib/modules/tp9951.ko
+    insmod /vendor/lib/modules/tp9950.ko
+    insmod /vendor/lib/modules/qn8035.ko
+    insmod /vendor/lib/modules/tda7708LX.ko
+	insmod /vendor/lib/modules/qn8027.ko
+	start logd
+
+on post-fs
+	start modules
+
+on property:ro.mtk_emmc_support=1
+    # Support A/B feature for emmc boot region
+    symlink /dev/block/mmcblk0boot0 /dev/block/platform/bootdevice/by-name/preloader_a
+    symlink /dev/block/mmcblk0boot1 /dev/block/platform/bootdevice/by-name/preloader_b
+
+on property:ro.mtk_ufs_booting=1
+    # Support A/B feature for ufs boot region
+    symlink /dev/block/sda /dev/block/platform/bootdevice/by-name/preloader_a
+    symlink /dev/block/sdb /dev/block/platform/bootdevice/by-name/preloader_b
+
+service modules /sbin/modules
+    oneshot
+    disabled
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service insmodc /sbin/init.insmod.sh
+    oneshot
+    disabled
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service logd /system/bin/logd
+    socket logd stream 0666 logd logd
+    socket logdr seqpacket 0666 logd logd
+    socket logdw dgram+passcred 0222 logd logd
+    file /proc/kmsg r
+    file /dev/kmsg w
+    user logd
+    group logd system package_info readproc
+    writepid /dev/cpuset/system-background/tasks
+
+service logd-reinit /system/bin/logd --reinit
+    oneshot
+    disabled
+    user logd
+    group logd
+    writepid /dev/cpuset/system-background/tasks
