@@ -35,7 +35,7 @@ load_modules() {
 	busybox mount -v /vendor >> $driver || echo 'Vendor partition already mounted' >> $driver;
 	busybox mount -v /cache >> $driver || echo 'Cache partition already mounted' >> $driver;
 	
-	[ -d $vendor ] && [[ $(getprop modules.loaded) != '1' ]] && load_modules & wait
+	[ -d $vendor ] && [[ `lsmod | grep -c " "` -lt 5 ]] && load_modules & wait
 	
 	echo '#' >> $driver;
 	echo 'Driver Check by I2C-TOOLS' >> $driver;
@@ -47,6 +47,7 @@ load_modules() {
 	echo $i2c2 >> $driver 2>&1;
 	echo '#' >> $driver;
 	echo "Kernel driver - modules loaded: $(getprop modules.loaded)" >> $driver 2>&1;
+	echo "Kernel driver - all modules ready: $(getprop vendor.all.modules.ready)" >> $driver 2>&1;
 
 	if [[ $(getprop ro.debuggable) != '0' ]]; then
 		setprop persist.log.tag V

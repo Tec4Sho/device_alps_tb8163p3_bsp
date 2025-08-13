@@ -33,7 +33,7 @@ RECOVERY_SDCARD_ON_DATA := true               # Optional: If /sdcard partition i
 TW_EXCLUDE_SUPERSU := true                    # true/false: Add SuperSU or not
 TW_INCLUDE_CRYPTO := true                     # true/false: Add Data Encryption Support or not
 #TW_INPUT_BLACKLIST := "hbtp_vm"               # Optional: Disables virtual mouse
-TW_SCREEN_BLANK_ON_BOOT := true
+TW_SCREEN_BLANK_ON_BOOT := false
 TW_THEME := landscape_hdpi                     # Set the exact theme you wanna use. If resulation doesn't match, define the height/width
 DEVICE_RESOLUTION := 1280x720                 # The Resolution of your Device
 TARGET_SCREEN_HEIGHT := 720                    # The height
@@ -50,13 +50,27 @@ TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/class/android_usb/android0/f_mtp/lun/fil
 
 TW_MAX_BRIGHTNESS := 255
 TW_DEFAULT_BRIGHTNESS := 80                   # Set custom brightness, low is better
-
 TW_INCLUDE_NTFS_3G := true                    # Include NTFS Filesystem Support
 TW_INCLUDE_FUSE_EXFAT := true                 # Include Fuse-ExFAT Filesystem Support
 TWRP_INCLUDE_LOGCAT := true                   # Include LogCat Binary
 TW_INCLUDE_FB2PNG := true                     # Include Screenshot Support
 TW_DEFAULT_LANGUAGE := en                     # Set Default Language 
 TW_EXTRA_LANGUAGES := false
+TWRP_EVENT_LOGGING := true
+TW_INCLUDE_LPTOOLS := false
+TW_INCLUDE_REPACKTOOLS := true
+TW_INCLUDE_LIBRESETPROP := true
+
+#Touchscreen
+TW_LOAD_VENDOR_MODULES := \
+ilitek.ko \
+sitronix-ts.ko \
+hxchipset-i2c.ko \
+focaltech.ko \
+synaptics_dsx.ko \
+jadard_touch.ko \
+gsl37xx.ko \
+hyn_cst3xx.ko
 
 # Kernel
 TARGET_IS_64_BIT := false                      # true/false: Determine if the device is 64-bit or not
@@ -82,7 +96,7 @@ BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --second_offset $(BOARD_KERNEL_SECOND_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOTIMG_HEADER_VERSION)
 
-
+# Set FSTAB
 BOARD_INCLUDE_RECOVERY_DTBO := true
 TARGET_KERNEL_ARCH := arm
 TARGET_KERNEL_HEADER_ARCH := arm
@@ -116,7 +130,7 @@ BOARD_VENDORIMAGE_PARTITION_SIZE := 0x12c00000
 #In Android 7.x and lower, /vendor and /odm partitions are not mounted early. In Android 8.x and higher, to make module loading from these partitions possible, provisions have been made to mount partitions early for both non-A/B and A/B devices. This also ensures that the partitions are mounted in both Android and Charger modes.
 
 # In BoardConfig.mk, the Android build defines a BOARD_VENDOR_KERNEL_MODULES variable that provides a full list of the kernel modules intended for the vendor image. The modules listed in this variable are copied into the vendor image at /lib/modules/, and, after being mounted in Android, appear in /vendor/lib/modules (in accordance with the above requirements). Example configuration of the vendor kernel modules:
-vendor_lkm_dir := device/$(vendor)/lkm-4.x
+vendor_lkm_dir := $(LOCAL_PATH)/recovery/root/lib/modules
 BOARD_VENDOR_KERNEL_MODULES := \
   $(vendor_lkm_dir)/ilitek.ko \
   $(vendor_lkm_dir)/wlan_drv_gen2.ko \
@@ -150,7 +164,7 @@ BOARD_VENDOR_KERNEL_MODULES := \
   $(vendor_lkm_dir)/wmt_chrdev_wifi.ko
   
 # In this example, a vendor kernel module pre-built repository is mapped into the Android build at the location listed above.
-vendor_lkm_dir := device/$(vendor)/lkm-4.x
+vendor_lkm_dir := $(LOCAL_PATH)/recovery/root/lib/modules
 BOARD_RECOVERY_KERNEL_MODULES := \
   $(vendor_lkm_dir)/ilitek.ko \
   $(vendor_lkm_dir)/sitronix-ts.ko \
