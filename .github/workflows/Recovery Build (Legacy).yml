@@ -14,7 +14,7 @@ on:
       DEVICE_TREE_URL:
         description: 'DEVICE_TREE_URL'
         required: true
-        default: 'https://github.com/Tec4Sho/device_alps_tb8163p3_bsp-twrp'
+        default: 'https://github.com/Tec4Sho/device_alps_tb8163p3_bsp'
       DEVICE_TREE_BRANCH:
         description: 'DEVICE_TREE_BRANCH'
         required: true
@@ -36,7 +36,7 @@ on:
       MAKEFILE_NAME:
         description: 'MAKEFILE_NAME'
         required: true
-        default: 'twrp_tb8163p3_bsp'
+        default: 'omni_tb8163p3_bsp'
       BUILD_TARGET:
         description: 'BUILD_TARGET'
         required: true
@@ -111,6 +111,7 @@ jobs:
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Tec4Sho"
         git config --global user.email "143420949+Tec4Sho@users.noreply.github.com"
+        git config --global url.https://${{ secrets.ALPS }}@github.com/.insteadOf https://github.com/
         repo init --depth=1 -u ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
       id: pwd
 
