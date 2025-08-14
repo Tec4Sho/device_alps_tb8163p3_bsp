@@ -110,7 +110,7 @@ jobs:
         cd workspace
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "Tec4Sho"
-        git config --global user.email "tec4sho@gmail.com"
+        git config --global user.email "143420949+Tec4Sho@users.noreply.github.com"
         repo init --depth=1 -u ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
       id: pwd
 
