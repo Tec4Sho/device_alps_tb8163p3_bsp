@@ -4,4 +4,4 @@
 
 LOCAL_PATH := device/alps/tb8163p3_bsp
 
-PRODUCT_MAKEFILES := $(LOCAL_PATH)/omni_tb8163p3_bsp.mk
+PRODUCT_MAKEFILES := $(LOCAL_PATH)/twrp_tb8163p3_bsp.mk

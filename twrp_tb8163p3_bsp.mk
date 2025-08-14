@@ -17,7 +17,7 @@ PRODUCT_COPY_FILES += device/alps/tb8163p3_bsp/prebuilt/zImage:kernel
 # PRODUCT_COPY_FILES += $(LOCAL_PATH)/recovery/root/*:root/*
 
 PRODUCT_DEVICE := tb8163p3_bsp
-PRODUCT_NAME := omni_tb8163p3_bsp
+PRODUCT_NAME := twrp_tb8163p3_bsp
 PRODUCT_BRAND := alps
 PRODUCT_MODEL := tb8163p3_bsp
 PRODUCT_MANUFACTURER := alps
