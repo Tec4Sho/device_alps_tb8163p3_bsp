@@ -23,7 +23,7 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree' # Your already made Device Tree for TWRP
         required: true
-        default: 'https://github.com/Tec4Sho/device_alps_tb8163p3_bsp'
+        default: 'https://github.com/Tec4Sho/device_alps_tb8163p3_bsp/tree/android-9.0'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch' # Your Device Tree Branch, make sure it's right.
         required: true
@@ -114,10 +114,8 @@ jobs:
         mkdir android-recovery
         cd android-recovery
         git remote set-url origin "git@github.com:Tec4Sho/device_alps_tb8163p3_bsp"
-        # git clone "git@github.com:Tec4Sho/device_alps_tb8163p3_bsp.git"
         git config --global user.name "Tec4Sho"
         git config --global user.email "tec4sho@gmail.com"
-        # git config --global url.https://${{ secrets.ALPS }}@github.com/.insteadOf https://github.com/
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
 
     - name: Repo Sync
@@ -134,7 +132,6 @@ jobs:
     - name: Installing python2 for legacy builds
       if: env.CHECK_LEGACY_BRANCH == 'true'
       run: |
-        # sudo apt-get install python2 python-is-python2
         sudo apt-get -y install python2
         sudo rm -rf /usr/bin/python
         sudo ln -sf /usr/bin/python2 /usr/bin/python
