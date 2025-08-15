@@ -114,7 +114,6 @@ jobs:
         mkdir android-recovery
         cd android-recovery
         git remote set-url origin "git@github.com:Tec4Sho/device_alps_tb8163p3_bsp"
-        git branch --set-upstream-to=origin/https://github.com/Tec4Sho/device_alps_tb8163p3_bsp android-9.0
         git config --global user.name "Tec4Sho"
         git config --global user.email "tec4sho@gmail.com"
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
