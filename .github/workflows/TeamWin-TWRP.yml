@@ -129,7 +129,8 @@ jobs:
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch # ./${{ inputs.DEVICE_PATH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
+        sudo ls .
+        
     - name: Installing python2 for legacy builds
       if: env.CHECK_LEGACY_BRANCH == 'true'
       run: |
