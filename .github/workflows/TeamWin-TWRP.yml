@@ -112,7 +112,7 @@ jobs:
     - name: Initialize Repo
       run: |
         mkdir android-recovery
-        cd android-recovery
+        sudo cd android-recovery
         git remote set-url origin 'git@github.com:Tec4Sho/device_alps_tb8163p3_bsp'
         git config --global user.name 'Tec4Sho'
         git config --global user.email 'tec4sho@gmail.com'
@@ -120,15 +120,16 @@ jobs:
 
     - name: Repo Sync
       run: |
-        cd android-recovery
+        sudo cd android-recovery
         repo sync -j$(nproc --all) --force-sync
       
     - name: Clone Device Tree
       run: |
-        cd android-recovery
+        sudo cd android-recovery
         git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch # ./${{ inputs.DEVICE_PATH }}
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        ls
 
     - name: Installing python2 for legacy builds
       if: env.CHECK_LEGACY_BRANCH == 'true'
@@ -139,7 +140,7 @@ jobs:
 
     - name: Building Image 
       run: |
-        cd android-recovery
+        sudo cd android-recovery
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
         lunch ${{ inputs.MAKEFILE_NAME }}-eng && make clean && make ${{ inputs.BUILD_TARGET }}image -j$(nproc --all)
