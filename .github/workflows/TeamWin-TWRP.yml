@@ -198,3 +198,6 @@ jobs:
         echo "Done checking missing dependencies. Review, and reconfigure your tree."
       continue-on-error: true
 #${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
