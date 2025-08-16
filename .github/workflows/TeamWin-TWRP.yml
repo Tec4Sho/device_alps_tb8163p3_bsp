@@ -131,7 +131,7 @@ jobs:
       run: |
         cd android-recovery
         repo sync -j$(nproc --all) --force-sync
-      working-directory: android-recovery
+      working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
       
     - name: Clone Device Tree
       run: |
@@ -140,7 +140,7 @@ jobs:
         git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} ./${{ inputs.DEVICE_PATH }} --single-branch
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
+      working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
 
     - name: Repo Dir Check
       run: |
