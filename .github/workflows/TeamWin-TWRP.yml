@@ -112,10 +112,11 @@ jobs:
     - name: Initialize Repo
       run: |
         mkdir android-recovery
-        sudo cd android-recovery
+        sudo cd android-recovery 
+        echo "android-recovery-folder=$(pwd)" >> $GITHUB_OUTPUT
+        git config --global user.name "${{ github.actor }}"
+        git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
         git remote set-url origin 'git@github.com:Tec4Sho/device_alps_tb8163p3_bsp'
-        git config --global user.name 'Tec4Sho'
-        git config --global user.email 'tec4sho@gmail.com'
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
 
     - name: Repo Sync
@@ -126,10 +127,15 @@ jobs:
     - name: Clone Device Tree
       run: |
         sudo cd android-recovery
-        git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch # ./${{ inputs.DEVICE_PATH }}
+        mkdir ${{ inputs.DEVICE_PATH }}
+        git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch ./${{ inputs.DEVICE_PATH }}
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        ls
+
+    - name: Repo Dir Check
+      run: |
+        sudo cd android-recovery    
+        echo "android-recovery-folder content $(ls)"
 
     - name: Installing python2 for legacy builds
       if: env.CHECK_LEGACY_BRANCH == 'true'
