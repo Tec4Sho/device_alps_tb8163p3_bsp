@@ -4,8 +4,11 @@
 ifneq ($(filter tb8163p3,$(TARGET_DEVICE)),)
 
 LOCAL_PATH := $(call my-dir)
+
 COMMON_LUNCH_CHOICES := omni_tb8163p3-eng
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
+
+include $(call all-xml-files-under,$(LOCAL_PATH))
 
 endif
