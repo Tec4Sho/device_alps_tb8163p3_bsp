@@ -12,7 +12,7 @@ $(call inherit-product, vendor/omni/config/common.mk)
 
 # Replace $$DEVICE$$ with your Device Name's Value.
 # Replace $$BRAND$$ with your Brand's / Manufacturer's Value.
-PRODUCT_COPY_FILES += device/alps/tb8163p3_bsp/prebuilt/zImage:kernel
+PRODUCT_COPY_FILES += device/alps/tb8163p3/prebuilt/zImage:kernel
 # Fles under $(LOCAL_PATH)/recovery/root/ gets automatically copied into recovery
 # PRODUCT_COPY_FILES += $(LOCAL_PATH)/recovery/root/*:root/*
 
