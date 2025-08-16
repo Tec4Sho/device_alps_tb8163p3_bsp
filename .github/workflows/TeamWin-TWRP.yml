@@ -23,7 +23,7 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree' # Your already made Device Tree for TWRP
         required: true
-        default: 'https://github.com/Tec4Sho/device_alps_tb8163p3_bsp/tree/android-9.0'
+        default: 'https://github.com/Tec4Sho/device_alps_tb8163p3_bsp'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch' # Your Device Tree Branch, make sure it's right.
         required: true
@@ -113,7 +113,7 @@ jobs:
       run: |
         mkdir android-recovery
         cd android-recovery
-        git remote set-url origin "git@github.com:Tec4Sho/device_alps_tb8163p3_bsp/tree/android-9.0"
+        # git remote set-url origin "git@github.com:Tec4Sho/device_alps_tb8163p3_bsp/tree/android-9.0"
         git config --global user.name "Tec4Sho"
         git config --global user.email "tec4sho@gmail.com"
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
@@ -126,7 +126,8 @@ jobs:
     - name: Clone Device Tree
       run: |
         cd android-recovery
-        git clone ${{ inputs.DEVICE_TREE }} -b ${{ inputs.DEVICE_TREE_BRANCH }} ./${{ inputs.DEVICE_PATH }}
+        git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
+        git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch # ./${{ inputs.DEVICE_PATH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
     - name: Installing python2 for legacy builds
