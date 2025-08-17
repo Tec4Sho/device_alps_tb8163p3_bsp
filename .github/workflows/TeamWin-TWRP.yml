@@ -156,10 +156,17 @@ jobs:
 
     - name: Repo Dir Check
       run: |
-        cd android-recovery    
-        echo "android-recovery dir path folders and files list:"
-        pwd
-        ${{ inputs.BUILD_TARGET_LOCATION }}
+        if [ ${{ inputs.BUILD_TARGET_LOCATION }} == 'ls -pR1' ]; then
+           cd android-recovery   
+           pwd
+           echo "repo ${{ inputs.DEVICE_NAME }} dir folders and files list:"
+           ${{ inputs.BUILD_TARGET_LOCATION }} ${{ inputs.DEVICE_NAME }}
+        else
+           cd android-recovery
+           pwd
+           echo "android-recovery dir path folders and files list:"
+           ${{ inputs.BUILD_TARGET_LOCATION }}
+        fi   
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
       continue-on-error: true
       
@@ -173,6 +180,7 @@ jobs:
     - name: Setup Build Date # Output will be use in Release
       run: |
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+      continue-on-error: false
 
     - name: Building Image 
       run: |
@@ -200,7 +208,7 @@ jobs:
           Device: [Device Tree/Branch](${{ inputs.DEVICE_TREE }}/tree/${{ inputs.DEVICE_TREE_BRANCH }})
           Commit: Most recent [commit](${{ inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
         prerelease: true
-        # continue-on-error: false
+        continue-on-error: false
 
     - name: Run LDCheck
       if: inputs.LDCHECK == 'true'
