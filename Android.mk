@@ -9,8 +9,10 @@ COMMON_LUNCH_CHOICES := \
 omni_tb8163p3-eng \
 omni_tb8163p3.mk
 
-include $(call all-makefiles-under,$(LOCAL_PATH))
+-include $(call all-makefiles-under,$(LOCAL_PATH))
 
-include $(call all-xml-files-under,$(LOCAL_PATH))
+-include $(call all-xml-files-under,$(LOCAL_PATH))
+
+-include $(LOCAL_PATH)/kernel_modules.mk
 
 endif
