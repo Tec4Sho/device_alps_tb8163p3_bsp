@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <remote name="device" fetch="https://github.com/Tec4Sho/android_device_alps_tb8163p3" revision="android-9.0" />
-  <project path="device/alps/tb8163p3" name="Tec4Sho/android_device_alps_tb8163p3" remote="device" />
+  <project path="android_device_alps_tb8163p3/device/alps/tb8163p3" name="android_device_alps_tb8163p3" remote="device" />
 </manifest>
