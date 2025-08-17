@@ -148,7 +148,7 @@ jobs:
     - name: Clone Device Tree
       run: |
         cd android-recovery
-        mkdir -p ${{ inputs.DEVICE_PATH }}
+        # mkdir -p ${{ inputs.DEVICE_PATH }}
         git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
