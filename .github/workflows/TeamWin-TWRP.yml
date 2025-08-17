@@ -182,6 +182,7 @@ jobs:
         lunch ${{ inputs.MAKEFILE_NAME }}-eng && make clean && make ${{ inputs.BUILD_TARGET }}image -j$(nproc --all)
         echo "Done building your ${{ inputs.BUILD_TARGET }}.img"
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
+      continue-on-error: false
       
     - name: Upload to Release
       if: success()
@@ -210,7 +211,7 @@ jobs:
         python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ inputs.LDCHECKPATH }}
         echo "Done checking missing dependencies. Review, and reconfigure your tree."
       continue-on-error: true
-#${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }} ./${{ inputs.DEVICE_PATH }}
+        #${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }} ./${{ inputs.DEVICE_PATH }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
+      cancel-in-progress: true
