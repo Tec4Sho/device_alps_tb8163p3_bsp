@@ -52,11 +52,11 @@ on:
       BUILD_TARGET_LOCATION:
         description: 'Build Target files location' # Pick among find and ls
         required: false
-        default: 'ls -pR1 ${{ inputs.DEVICE_NAME }}'
+        default: 'ls -pR1'
         type: choice
         options:
         - find * -print
-        - ls -pR1 ${{ inputs.DEVICE_NAME }}
+        - ls -pR1
       LDCHECK:
         description: 'Use LDCHECK'
         required: false
