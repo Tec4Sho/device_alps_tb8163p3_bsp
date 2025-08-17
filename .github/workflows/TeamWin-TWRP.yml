@@ -141,7 +141,7 @@ jobs:
       run: |
         cd android-recovery
         mkdir -p ${{ inputs.DEVICE_PATH }}
-        git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} ./${{ inputs.DEVICE_PATH }} --single-branch
+        git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} --single-branch
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
@@ -149,9 +149,9 @@ jobs:
     - name: Repo Dir Check
       run: |
         cd android-recovery    
-        echo "android-recovery-folder content"
+        echo "android-recovery dir path folders and files list:"
         pwd
-        ls
+        ls -psR1
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
       continue-on-error: true
       
@@ -202,7 +202,7 @@ jobs:
         python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ inputs.LDCHECKPATH }}
         echo "Done checking missing dependencies. Review, and reconfigure your tree."
       continue-on-error: true
-#${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+#${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }} ./${{ inputs.DEVICE_PATH }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
+      cancel-in-progress: false
