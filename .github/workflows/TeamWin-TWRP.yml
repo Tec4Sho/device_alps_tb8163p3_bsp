@@ -109,23 +109,27 @@ jobs:
         chmod a+x ~/bin/repo
         sudo ln -sf ~/bin/repo /usr/bin/repo
 
-    - name: Setup SSH Keys
-      if: ${{ startsWith(github.event.inputs.MANIFEST_URL, 'git@github.com') }}
-      uses: webfactory/ssh-agent@v0.9.1
-      with:
-          ssh-private-key: |
-              ${{ secrets.SSH_PRIVATE_KEY }}    
-
     - name: Initialize Repo
       run: |
         mkdir android-recovery
         cd android-recovery 
         echo "android-recovery-folder=$(pwd)" >> $GITHUB_OUTPUT
-        git config --global user.name "${{ github.actor }}"
-        git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-        git remote set-url origin 'git@github.com:Tec4Sho/android_device_alps_tb8163p3'
+        git remote set-url origin 'git@github.com:Tec4Sho/android_device_alps_tb8163p3.git'
+        git config --global user.name 'Tec4Sho'
+        git config --global user.email 'tec4sho@gmail.com'
+        git remote -v
+        ssh -vT git@github.com
+        ssh -T git@github.com
+        eval $(ssh-agent -s)
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
-     # id: pwd    
+     # id: pwd
+     
+    - name: Setup SSH Keys
+      if: ${{ startsWith(github.event.inputs.MANIFEST_URL, 'git@github.com') }}
+      uses: webfactory/ssh-agent@v0.9.1
+      with:
+          ssh-private-key: |
+              ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Repo Sync
       run: |
