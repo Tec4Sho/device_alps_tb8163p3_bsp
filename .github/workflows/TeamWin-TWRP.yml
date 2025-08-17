@@ -31,11 +31,11 @@ on:
       DEVICE_PATH:
         description: 'DEVICE_PATH'
         required: true
-        default: 'device/alps/tb8163p3'
+        default: 'android_device_alps_tb8163p3/device/alps/tb8163p3'
       DEVICE_NAME:
         description: 'DEVICE_NAME'
         required: true
-        default: 'tb8163p3'
+        default: 'android_device_alps_tb8163p3'
       MAKEFILE_NAME:
         description: 'MAKEFILE_NAME (without including .mk, Example: omni_7304F)'
         required: true
@@ -49,6 +49,14 @@ on:
         - boot
         - recovery
         - vendorboot
+      BUILD_TARGET_LOCATION:
+        description: 'locate your Build Target files' # Pick among find and ls
+        required: false
+        default: 'find *'
+        type: choice
+        options:
+        - find *
+        - ls -pR
       LDCHECK:
         description: 'Use LDCHECK'
         required: false
@@ -151,7 +159,7 @@ jobs:
         cd android-recovery    
         echo "android-recovery dir path folders and files list:"
         pwd
-        ls -psR1
+        ${{ inputs.BUILD_TARGET_LOCATION }}
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
       continue-on-error: true
       
