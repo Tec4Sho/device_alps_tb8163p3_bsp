@@ -134,10 +134,6 @@ jobs:
       with:
           ssh-private-key: |
               ${{ secrets.SSH_PRIVATE_KEY }}
-              run: |
-                ssh -vT git@github.com
-                ssh -T git@github.com
-                eval $(ssh-agent -s)
 
     - name: Repo Sync
       run: |
