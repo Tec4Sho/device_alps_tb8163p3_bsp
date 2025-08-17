@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-LOCAL_PATH := device/alps/tb8163p3
+LOCAL_PATH := android_device_alps_tb8163p3/device/alps/tb8163p3
 
 # Dynamic
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
