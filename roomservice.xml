@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote name="device" fetch="https://github.com" revision="android-9.0" />
-  <remote name="kernel" fetch="https://github.com" revision="android-9.0" />
-  <project path="device/alps/tb8163p3_bsp" name="Tec4Sho/device_alps_tb8163p3_bsp" remote="device" />
-  <project path="device/alps/tb8163p3_bsp" remote="kernel" name="Tec4Sho/device_alps_tb8163p3_bsp" />
-  <project name="device_alps_tb8163p3_bsp" path="device/alps/tb8163p3_bsp" remote="TeamWin" revision="android-9.0" />
+  <remote name="device" fetch="https://github.com/Tec4Sho/android_device_alps_tb8163p3" revision="android-9.0" />
+  <project path="device/alps/tb8163p3" name="tb8163p3" remote="device" />
 </manifest>

@@ -10,16 +10,21 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/embedded.mk)
 # If you are building from OmniROM's minimal source, Inherit some common Omni stuff.
 $(call inherit-product, vendor/omni/config/common.mk)
 
+# Inherit from tb8163p3 device
+$(call inherit-product, device/alps/tb8163p3/device.mk)
+
+LOCAL_PATH := device/alps/tb8163p3
 # Replace $$DEVICE$$ with your Device Name's Value.
 # Replace $$BRAND$$ with your Brand's / Manufacturer's Value.
-PRODUCT_COPY_FILES += device/alps/tb8163p3_bsp/prebuilt/zImage:kernel
+PRODUCT_COPY_FILES += device/alps/tb8163p3/prebuilt/zImage:kernel
+PRODUCT_COPY_FILES += device/alps/tb8163p3/prebuilt/dtbo.img:dtbo
 # Fles under $(LOCAL_PATH)/recovery/root/ gets automatically copied into recovery
-# PRODUCT_COPY_FILES += $(LOCAL_PATH)/recovery/root/*:root/*
+PRODUCT_COPY_FILES += $(LOCAL_PATH)/recovery/root/*:root/*
 
 PRODUCT_DEVICE := tb8163p3
 PRODUCT_NAME := omni_tb8163p3
 PRODUCT_BRAND := alps
-PRODUCT_MODEL := tb8163p3
+PRODUCT_MODEL := tb8163p3_bsp
 PRODUCT_MANUFACTURER := alps
 
 # Forcefully add mtp support (adb is already there)

@@ -32,7 +32,7 @@ bt_drv.ko \
 gps_drv.ko \
 wmt_chrdev_wifi.ko
 
--include $(MTK_TARGET_PROJECT_FOLDER)/kernel_modules.mk
+-include $(LOCAL_FILE)/kernel_modules.mk
 
 $(MTK_KERNEL_MODULES): kernel ;
 

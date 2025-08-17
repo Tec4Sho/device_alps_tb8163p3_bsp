@@ -1,4 +1,4 @@
-name: TeamWin [TWRP]
+name: TWRP Builder
 
 on:
   workflow_dispatch:
@@ -23,23 +23,23 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree' # Your already made Device Tree for TWRP
         required: true
-        default: 'https://github.com/Tec4Sho/android_device_alps_tb8163p3'
+        default: 'https://github.com/Tec4Sho/android_device_alps_tb8163p3.git'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch' # Your Device Tree Branch, make sure it's right.
         required: true
         default: 'android-9.0'
       DEVICE_PATH:
-        description: 'DEVICE_PATH'
+        description: 'Device Path (Used by TWRP Builder)'
         required: true
         default: 'device/alps/tb8163p3'
       DEVICE_NAME:
-        description: 'DEVICE_NAME'
+        description: 'Your Device Name'
         required: true
         default: 'tb8163p3'
       MAKEFILE_NAME:
-        description: 'MAKEFILE_NAME (without including .mk, Example: omni_7304F)'
+        description: 'MAKEFILE_NAME (including .mk, -eng Example: omni_7304F.mk)'
         required: true
-        default: 'omni_tb8163p3'
+        default: 'omni_tb8163p3.mk'
       BUILD_TARGET:
         description: 'Specify your Build Target' # Pick among boot, recovery and vendor_boot
         required: true
@@ -49,6 +49,14 @@ on:
         - boot
         - recovery
         - vendorboot
+      BUILD_TARGET_LOCATION:
+        description: 'Build Target files location' # Pick among find and ls
+        required: false
+        default: 'ls'
+        type: choice
+        options:
+        - find
+        - ls
       LDCHECK:
         description: 'Use LDCHECK'
         required: false
@@ -114,17 +122,43 @@ jobs:
         mkdir android-recovery
         cd android-recovery 
         echo "android-recovery-folder=$(pwd)" >> $GITHUB_OUTPUT
-        git config --global user.name "${{ github.actor }}"
-        git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-        git remote set-url origin 'git@github.com:Tec4Sho/android_device_alps_tb8163p3'
+        # git remote set-url origin 'git@github.com:Tec4Sho/android_device_alps_tb8163p3.git'
+        git config --global user.name 'Tec4Sho'
+        git config --global user.email 'tec4sho@gmail.com'
+        git remote -v
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
-      id: pwd    
+     
+    - name: Setup SSH Keys
+      if: ${{ startsWith(github.event.inputs.MANIFEST_URL, 'git@github.com') }}
+      uses: webfactory/ssh-agent@v0.9.1
+      with:
+          ssh-private-key: |
+              ${{ secrets.SSH_PRIVATE_KEY }}
+              run: |
+                ssh -vT git@github.com
+                ssh -T git@github.com
+                eval $(ssh-agent -s)
 
     - name: Repo Sync
       run: |
         cd android-recovery
         repo sync -j$(nproc --all) --force-sync
       working-directory: android-recovery
+     
+    - name: Check Build Tree
+      uses: haya14busa/action-cond@v1
+      id: buildtree
+      with:
+        cond: ${{ inputs.MANIFEST_BRANCH == 'twrp-11' || inputs.MANIFEST_BRANCH == 'twrp-12.1' }}
+        if_true: twrp
+        if_false: omni
+
+    - name: Sync Device Dependencies
+      run: |
+        bash ${GITHUB_WORKSPACE}/scripts/convert.sh ${{ inputs.DEVICE_PATH }}/${{ steps.buildtree.outputs.value }}.dependencies
+        repo sync -j$(nproc --all)
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+      continue-on-error: true
       
     - name: Clone Device Tree
       run: |
@@ -133,13 +167,21 @@ jobs:
         git clone ${{ inputs.DEVICE_TREE }} --branch ${{ inputs.DEVICE_TREE_BRANCH }} ./${{ inputs.DEVICE_PATH }} --single-branch
         git fetch origin ${{ inputs.DEVICE_TREE_BRANCH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
+      working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
 
     - name: Repo Dir Check
       run: |
-        cd android-recovery    
-        echo "android-recovery-folder content"
-        sudo ls android-recovery
+        if [ ${{ inputs.BUILD_TARGET_LOCATION }} == 'ls' ]; then
+           cd android-recovery   
+           pwd
+           echo "repo ${{ inputs.DEVICE_NAME }} dir folders and files list:"
+           ${{ inputs.BUILD_TARGET_LOCATION }} -pR1 ${{ inputs.DEVICE_PATH }}
+        else
+           cd android-recovery
+           pwd
+           echo "android-recovery dir path folders and files list:"
+           ${{ inputs.BUILD_TARGET_LOCATION }} * -print
+        fi   
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
       continue-on-error: true
       
@@ -152,16 +194,18 @@ jobs:
 
     - name: Setup Build Date # Output will be use in Release
       run: |
-        echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV    
+        echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+      continue-on-error: true
 
     - name: Building Image 
       run: |
         cd android-recovery
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch ${{ inputs.MAKEFILE_NAME }}-eng && make clean && make ${{ inputs.BUILD_TARGET }}image -j$(nproc --all)
-        echo "Done building your ${{ inputs.BUILD_TARGET }}.img"
+        lunch ${{ inputs.DEVICE_PATH }}/${{ inputs.MAKEFILE_NAME }} && make clean && make ${{ inputs.BUILD_TARGET }}image -j$(nproc --all)
+        echo "Done building your ${{ inputs.BUILD_TARGET }}.img check pre-release if successful"
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
+      continue-on-error: false
       
     - name: Upload to Release
       if: success()
@@ -171,7 +215,7 @@ jobs:
           android-recovery/out/target/product/${{ inputs.DEVICE_NAME }}/${{ inputs.BUILD_TARGET }}.img
           android-recovery/out/target/product/${{ inputs.DEVICE_NAME }}/*installer*zip
           android-recovery/out/target/product/${{ inputs.DEVICE_NAME }}/ramdisk-recovery.*
-          android-recovery/out/target/product/${{ inputs.DEVICE_NAME }}/vbmeta.*
+          # android-recovery/out/target/product/${{ inputs.DEVICE_NAME }}/vbmeta.*
         name: Unofficial TWRP for ${{ inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
         body: |
@@ -179,6 +223,7 @@ jobs:
           Device: [Device Tree/Branch](${{ inputs.DEVICE_TREE }}/tree/${{ inputs.DEVICE_TREE_BRANCH }})
           Commit: Most recent [commit](${{ inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
         prerelease: true
+        fail_on_unmatched_files: true
 
     - name: Run LDCheck
       if: inputs.LDCHECK == 'true'
@@ -190,4 +235,8 @@ jobs:
         python3 ldcheck -p system/lib64:vendor/lib64:system/lib:vendor/lib -d ${{ inputs.LDCHECKPATH }}
         echo "Done checking missing dependencies. Review, and reconfigure your tree."
       continue-on-error: true
-#${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+        #${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }} 
+        
+    - concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
