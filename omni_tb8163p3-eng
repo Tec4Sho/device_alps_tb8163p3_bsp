@@ -10,7 +10,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/embedded.mk)
 # If you are building from OmniROM's minimal source, Inherit some common Omni stuff.
 $(call inherit-product, vendor/omni/config/common.mk)
 
-LOCAL_PATH := device/alps/tb8163p3
+LOCAL_PATH := android_device_alps_tb8163p3/device/alps/tb8163p3
 # Replace $$DEVICE$$ with your Device Name's Value.
 # Replace $$BRAND$$ with your Brand's / Manufacturer's Value.
 PRODUCT_COPY_FILES += device/alps/tb8163p3/prebuilt/zImage:kernel
