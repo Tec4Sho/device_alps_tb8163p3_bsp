@@ -3,7 +3,7 @@
 
 ifneq ($(filter android_device_alps_tb8163p3,$(TARGET_DEVICE)),)
 
-LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := android_device_alps_tb8163p3/
 
 COMMON_LUNCH_CHOICES := \
 omni_tb8163p3-eng \
