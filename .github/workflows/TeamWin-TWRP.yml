@@ -134,6 +134,10 @@ jobs:
       with:
           ssh-private-key: |
               ${{ secrets.SSH_PRIVATE_KEY }}
+              run: |
+                ssh -vT git@github.com
+                ssh -T git@github.com
+                eval $(ssh-agent -s)
 
     - name: Repo Sync
       run: |
@@ -169,7 +173,6 @@ jobs:
     - name: Setup Build Date # Output will be use in Release
       run: |
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-      continue-on-error: false
 
     - name: Building Image 
       run: |
@@ -197,7 +200,7 @@ jobs:
           Device: [Device Tree/Branch](${{ inputs.DEVICE_TREE }}/tree/${{ inputs.DEVICE_TREE_BRANCH }})
           Commit: Most recent [commit](${{ inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
         prerelease: true
-        continue-on-error: false
+        # continue-on-error: false
 
     - name: Run LDCheck
       if: inputs.LDCHECK == 'true'
