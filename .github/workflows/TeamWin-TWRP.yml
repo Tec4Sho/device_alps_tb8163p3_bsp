@@ -114,13 +114,13 @@ jobs:
         mkdir android-recovery
         cd android-recovery 
         echo "android-recovery-folder=$(pwd)" >> $GITHUB_OUTPUT
-        git remote set-url origin 'git@github.com:Tec4Sho/android_device_alps_tb8163p3.git'
+        # git remote set-url origin 'git@github.com:Tec4Sho/android_device_alps_tb8163p3.git'
         git config --global user.name 'Tec4Sho'
         git config --global user.email 'tec4sho@gmail.com'
         git remote -v
-        ssh -vT git@github.com
-        ssh -T git@github.com
-        eval $(ssh-agent -s)
+        # ssh -vT git@github.com
+        # ssh -T git@github.com
+        # eval $(ssh-agent -s)
         repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ inputs.MANIFEST_BRANCH }}
      # id: pwd
      
@@ -150,7 +150,8 @@ jobs:
       run: |
         cd android-recovery    
         echo "android-recovery-folder content"
-        sudo ls android-recovery
+        pwd
+        ls
       working-directory: ${{ steps.pwd.outputs.android-recovery-folder }}
       continue-on-error: true
       
