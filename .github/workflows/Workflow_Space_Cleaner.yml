@@ -10,23 +10,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: True
-      GENERAL_INCLUDE:
-        type: choice
-        description: Include general 
-        options:
-        - '.+'
-        - ' '
-        required: true
-        default: .+
-      DOCKER_INCLUDE:
-        type: choice
-        description: Include docker
-        options:
-        - '.+'
-        - ' '
-        required: true
-        default: .+
+        default: 'True'
       DOCKER_PRUNE:
         type: string
         description: Docker prune
@@ -34,7 +18,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       DOCKER_CLEAN:
         type: string
         description: Docker clean
@@ -42,7 +26,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       APT_PRUNE:
         type: string
         description: Apt prune
@@ -50,7 +34,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       APT_CLEAN:
         type: string
         description: Apt clean
@@ -58,7 +42,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       HOMEBREW_PRUNE:
         type: string
         description: Homebrew prune
@@ -66,7 +50,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       HOMEBREW_CLEAN:
         type: string
         description: Homebrew clean
@@ -74,7 +58,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       NPM_PRUNE:
         type: string
         description: Npm prune
@@ -82,7 +66,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       NPM_CLEAN:
         type: string
         description: Npm clean
@@ -90,7 +74,7 @@ on:
         - 'True'
         - 'False'
         required: true
-        default: False
+        default: 'False'
       OS_SWAP:
         type: string
         description: OS swap 
@@ -98,7 +82,7 @@ on:
         - 'True'
         - 'False' 
         required: true
-        default: True
+        default: 'True'
 
 
 jobs:
@@ -114,8 +98,8 @@ jobs:
         echo "#"
         echo "::group::User Environment Variables"
         echo "OPERATE SUDO: ${{ inputs.OPERATE_SUDO }}"
-        echo "GENERAL INCLUDE: ${{ inputs.GENERAL_INCLUDE }}"
-        echo "DOCKER INCLUDE: ${{ inputs.DOCKER_INCLUDE }}"
+        echo "GENERAL INCLUDE: .+"
+        echo "DOCKER INCLUDE:  .+"
         echo "DOCKER PRUNE: ${{ inputs.DOCKER_PRUNE }}"
         echo "DOCKER CLEAN: ${{ inputs.DOCKER_CLEAN }}"
         echo "APT PRUNE: ${{ inputs.APT_PRUNE }}"
@@ -131,8 +115,8 @@ jobs:
       uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.0"
       with:
           operate_sudo: "${{ inputs.OPERATE_SUDO }}"
-          general_include: "${{ inputs.GENERAL_INCLUDE }}"
-          docker_include: "${{ inputs.DOCKER_INCLUDE }}"
+          general_include: ".+"
+          docker_include: ".+"
           docker_prune: "${{ inputs.DOCKER_PRUNE }}"
           docker_clean: "${{ inputs.DOCKER_CLEAN }}"
           apt_prune: "${{ inputs.APT_PRUNE }}"
