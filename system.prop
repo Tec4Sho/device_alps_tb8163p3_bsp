@@ -1,0 +1,16 @@
+config.disable_consumerir=true
+dalvik.vm.checkjni=false
+net.bt.name=Android
+persist.sys.dalvik.vm.lib.2=libart.so
+ro.comp.sys_support_vndk=
+ro.config.hw_navigationbar=true
+ro.opengles.version=196610
+ro.product.cpu.abi2=armeabi
+ro.wifi.channels=
+ro.bootimage.build.date=Fri May 23 01:09:24 HKT 2025
+ro.bootimage.build.date.utc=1747933764
+ro.bootimage.build.fingerprint=DIGILAND/DL1023/DL1023:9/PPR1.180610.011/linhr05230109:user/release-keys
+ro.build.version.release=9
+ro.build.version.security_patch=2021-09-05
+ro.mediatek.version.release=AJ_2025.05.23.01
+ro.build.version.sdk=28
