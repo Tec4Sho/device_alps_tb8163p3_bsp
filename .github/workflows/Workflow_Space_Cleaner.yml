@@ -5,99 +5,99 @@ on:
   workflow_dispatch:
     inputs:
       OPERATE_SUDO:
-        type: choice
+        type: string
         description: Use sudo command
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: True
       GENERAL_INCLUDE:
         type: choice
         description: Include general 
         options:
-        - .+
-        -  
+        - '.+'
+        - ' '
         required: true
         default: .+
       DOCKER_INCLUDE:
         type: choice
         description: Include docker
         options:
-        - .+
-        -  
+        - '.+'
+        - ' '
         required: true
         default: .+
       DOCKER_PRUNE:
-        type: choice
+        type: string
         description: Docker prune
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
       DOCKER_CLEAN:
-        type: choice
+        type: string
         description: Docker clean
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
       APT_PRUNE:
-        type: choice
+        type: string
         description: Apt prune
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
       APT_CLEAN:
-        type: choice
+        type: string
         description: Apt clean
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
       HOMEBREW_PRUNE:
-        type: choice
+        type: string
         description: Homebrew prune
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
       HOMEBREW_CLEAN:
-        type: choice
+        type: string
         description: Homebrew clean
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
       NPM_PRUNE:
-        type: choice
+        type: string
         description: Npm prune
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
-     NPM_CLEAN:
-        type: choice
+      NPM_CLEAN:
+        type: string
         description: Npm clean
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False'
         required: true
         default: False
-     OS_SWAP:
-        type: choice
+      OS_SWAP:
+        type: string
         description: OS swap 
         options:
-        - True
-        - False 
+        - 'True'
+        - 'False' 
         required: true
         default: True
 
@@ -127,13 +127,12 @@ jobs:
         echo "OS SWAP: ${{ inputs.OS_SWAP }}"
         echo "::endgroup::"
 
-
-     - name: Optimize Disk Space
-       uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.0"
-       with:
+    - name: Optimize Disk Space
+      uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.0"
+      with:
           operate_sudo: "${{ inputs.OPERATE_SUDO }}"
-          general_include: ".+"
-          docker_include: ".+"
+          general_include: "${{ inputs.GENERAL_INCLUDE }}"
+          docker_include: "${{ inputs.DOCKER_INCLUDE }}"
           docker_prune: "${{ inputs.DOCKER_PRUNE }}"
           docker_clean: "${{ inputs.DOCKER_CLEAN }}"
           apt_prune: "${{ inputs.APT_PRUNE }}"
@@ -143,3 +142,15 @@ jobs:
           npm_prune: "${{ inputs.NPM_PRUNE }}"
           npm_clean: "${{ inputs.NPM_CLEAN }}"
           os_swap: "${{ inputs.OS_SWAP }}" 
+
+    - name: Disk Space Check
+      run: |
+        sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr | head
+        echo "#"
+        df . -h
+        echo "#"
+        sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr | head
+
+    - name: Disk Cleanup Done
+      run: echo "Workflow storage space cleaning was completed... GoodBye"
+      
