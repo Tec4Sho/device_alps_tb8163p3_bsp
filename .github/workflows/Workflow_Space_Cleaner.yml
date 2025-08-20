@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       OPERATE_SUDO:
-        type: string
+        type: choice 
         description: Use sudo command
         options:
         - 'True'
@@ -12,7 +12,7 @@ on:
         required: true
         default: 'True'
       DOCKER_PRUNE:
-        type: string
+        type: choice
         description: Docker prune
         options:
         - 'True'
@@ -20,7 +20,7 @@ on:
         required: true
         default: 'False'
       DOCKER_CLEAN:
-        type: string
+        type: choice
         description: Docker clean
         options:
         - 'True'
@@ -28,7 +28,7 @@ on:
         required: true
         default: 'False'
       APT_PRUNE:
-        type: string
+        type: choice
         description: Apt prune
         options:
         - 'True'
@@ -36,7 +36,7 @@ on:
         required: true
         default: 'False'
       APT_CLEAN:
-        type: string
+        type: choice
         description: Apt clean
         options:
         - 'True'
@@ -44,7 +44,7 @@ on:
         required: true
         default: 'False'
       HOMEBREW_PRUNE:
-        type: string
+        type: choice
         description: Homebrew prune
         options:
         - 'True'
@@ -52,7 +52,7 @@ on:
         required: true
         default: 'False'
       HOMEBREW_CLEAN:
-        type: string
+        type: choice
         description: Homebrew clean
         options:
         - 'True'
@@ -60,7 +60,7 @@ on:
         required: true
         default: 'False'
       NPM_PRUNE:
-        type: string
+        type: choice
         description: Npm prune
         options:
         - 'True'
@@ -68,7 +68,7 @@ on:
         required: true
         default: 'False'
       NPM_CLEAN:
-        type: string
+        type: choice
         description: Npm clean
         options:
         - 'True'
@@ -76,7 +76,7 @@ on:
         required: true
         default: 'False'
       OS_SWAP:
-        type: string
+        type: choice
         description: OS swap 
         options:
         - 'True'
