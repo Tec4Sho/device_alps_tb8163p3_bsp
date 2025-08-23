@@ -1,10 +1,10 @@
 [
 	
         {
-                "remote":"github",
-                "repository":"bq-mtk/android_device_bq_mt8163-common",
-                "target_path":"lineagehw/org/lineageos/hardware",
-                "revision":"lineage-16.0"
+                "remote":"TeamWin",
+                "repository":"android_bootable_recovery",
+                "target_path":"prebuilt",
+                "revision":"android-9.0"
         }
 
 ]
