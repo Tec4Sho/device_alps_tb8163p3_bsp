@@ -124,11 +124,11 @@ jobs:
           
     - name: Check disk space again 
       run: |
-        # sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr 2>/dev/null | head -n 20
+        sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr 2>/dev/null | head -n 20
         sudo df -h
         sudo rm -rf /opt/hostedtoolcache/ && \
         sudo rm -rf /tmp/* && \
-        sudo rm -rf /home/runner/actions-runner/cached/ 2>/dev/null && \
+        sudo find /home/runner/actions-runner/cached/ -xdev -type f -size +500M -delete 2>/dev/null && \
         sudo find /var/log -xdev -name "*.gz" -mtime +30 -delete && \
         sudo df -h
         sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr 2>/dev/null | head -n 20
