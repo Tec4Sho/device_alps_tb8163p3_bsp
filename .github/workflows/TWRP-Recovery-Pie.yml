@@ -138,11 +138,12 @@ jobs:
         export GOOS=linux
         export GOARCH=arm
         export GOARM=7
-        mkdir -p /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin
+        mkdir -p /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86
         go mod init "${{ github.event.inputs.BUILD_TARGET }}"image
         sudo wget -qO 'go1.26.1.linux-armv6l.tar.gz' 'https://go.dev/dl/go1.26.1.linux-armv6l.tar.gz' >/dev/null;
         sudo tar xf 'go1.26.1.linux-armv6l.tar.gz' -C '/home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/' 'go' && rm -vrf 'go1.26.1.linux-armv6l.tar.gz' && echo -e "\ngo1.26.1.linux-armv6l.tar.gz --- Was Installed Successfully";
         sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr 2>/dev/null | head -n 20
+        cp -pf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin
         
     - name: Clone Recovery Repo
       uses: actions/checkout@v6
