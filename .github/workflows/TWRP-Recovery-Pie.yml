@@ -234,7 +234,7 @@ jobs:
 
     - name: Building Image 
       run: |
-        sudo rm -rf /opt/hostedtoolcache && \
+        # sudo rm -rf /opt/hostedtoolcache && \
         sudo df -h /
         cd workspace
         # [[ -e ./build/make/core/Makefile ]] && [[ -e ./${{ github.event.inputs.DEVICE_PATH }}/scripts/mkimage ]] && sudo chmod 0755 ./${{ github.event.inputs.DEVICE_PATH }}/scripts/mkimage && sed -i '1525a \\t$(hide) $(CURDIR)/device/alps/tb8163p3_bsp/scripts/mkimage $@ $(CURDIR)/device/alps/tb8163p3_bsp/scripts/mtk_ramdisk.cfg > $@.mtk && mv -vf $@.mtk $@' ./build/make/core/Makefile && \
