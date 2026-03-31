@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Install GitHub CLI
         run: |
-          sudo dnf -y install gh
+          sudo apt-get -yq install gh
           gh --version
 
       # 🔑 2. Authenticate gh with the job-scoped GITHUB_TOKEN
