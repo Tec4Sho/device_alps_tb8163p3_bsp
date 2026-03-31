@@ -134,6 +134,11 @@ jobs:
         sudo find /home/runner/actions-runner/cached/ -xdev -type f -size +250M -delete 2>/dev/null && \
         sudo find /var/log -xdev -name "*.gz" -mtime +10 -delete && \
         sudo df -h /
+        sudo rm -rf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86//bin/go
+        export GOOS=linux
+        export GOARCH=arm
+        export GOARM=7
+        go build -o /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86//bin/go
         sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr 2>/dev/null | head -n 20
         gh cache delete >/dev/null || true
         
