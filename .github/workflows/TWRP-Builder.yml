@@ -1,0 +1,445 @@
+name: TWRP Builder 2025
+on:
+  workflow_dispatch:
+    inputs:
+      MANIFEST_BRANCH:
+        description: 'MANIFEST BRANCH'
+        required: true
+        default: 'twrp-9.0'
+        type: choice
+        options:
+        - twrp-14.1
+        - twrp-12.1
+        - twrp-11
+        - twrp-9.0
+      DEVICE_TREE:
+        description: 'DEVICE TREE'
+        required: true
+        default: 'https://github.com/Tec4Sho/android_device_alps_tb8163p3_bsp.git'
+      DEVICE_TREE_BRANCH:
+        description: 'DEVICE TREE BRANCH'
+        required: true
+        default: 'android-9.0'
+      DEVICE_PATH:
+        description: 'DEVICE PATH'
+        required: true
+        default: 'device/alps/tb8163p3_bsp'
+      DEVICE_NAME:
+        description: 'DEVICE NAME'
+        required: true
+        default: 'tb8163p3_bsp'
+      BUILD_TARGET:
+        description: 'BUILD TARGET'
+        required: true
+        default: 'recovery'
+        type: choice
+        options:
+        - boot
+        - recovery
+        - vendorboot
+      check-file:
+        description: 'CHECK FILE'
+        type: string
+        required: false
+        default: ''
+      CACHING_ENABLED:
+        description: ': ENABLE CACHING'
+        type: boolean
+        required: false
+        default: 'false'
+      CLEAN_ENVIRONMENT:
+        description: ': CLEAN ENVIRONMENT'
+        type: boolean
+        required: false
+        default: 'false'
+      MAXIMIZE_BUILD_SPACE:
+        description: ': MAXIMIZE BUILD SPACE'
+        type: boolean
+        required: false
+        default: 'true'
+        
+jobs:
+  build:
+    name: By ${{ github.actor }} ~ ${{ github.event.repository.updated_at }}
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+      GITHUB_TOKEN: ${{ secrets.TWRP }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    permissions:
+      contents: write
+    steps:
+    - name: Build Inputs
+      run: |
+        echo "::group::User Environment Variables"
+        echo "Displaying main variables/inputs."
+        echo "Manifest Branch: ${{ github.event.inputs.MANIFEST_BRANCH }}"
+        echo "Device Tree: ${{ github.event.inputs.DEVICE_TREE }}"
+        echo "Device Branch: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}"
+        echo "Device Path: ${{ github.event.inputs.DEVICE_PATH }}"
+        echo "Device Name: ${{ github.event.inputs.DEVICE_NAME }}"
+        echo "Build Target: ${{ github.event.inputs.BUILD_TARGET }}image"     
+        echo "::endgroup::";
+        
+     # Cleanup The Actions Workspace Using Custom Composite Run Actions
+    - name: Check Workspace & Remove Pkg*
+      run: |
+        echo "Listing 100 largest runner packages"
+        sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+        echo "Removing some large packages"
+        sudo dpkg --force-all --configure -a
+        sudo apt-get autoremove -yq
+        sudo apt-get autoclean -yq
+        sudo apt-get clean
+        sudo apt-get --fix-broken install -yq
+        df -h
+      continue-on-error: true
+      
+      # Cleanup The Actions Workspace Using Custom Composite Run Actions
+    - name: Cleanup Environment 
+      if: github.event.inputs.CLEAN_ENVIRONMENT == 'true'
+      uses: rokibhasansagar/slimhub_actions@main
+      with:
+        retain: "browser_all,clang,gcc,g++,python,ccache,repo,git,git-repo,git-core,cppcheck,cppcheck-gui,powershell"
+      # That's it! Now use your normal steps  
+
+    - name: Maximize Build Space
+      if: github.event.inputs.MAXIMIZE_BUILD_SPACE == 'true'
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 11000 # Example: Reserve 12 GB for the root directory
+        swap-size-mb: 2048 # Example: Reserve 4 GB for swap file
+        remove-dotnet: 'true' # Example: Remove the .NET SDK to free space 
+      continue-on-error: true
+
+    - name: Create Workspace
+      run: |
+        mkdir -p ${GITHUB_WORKSPACE}/workspace
+        mkdir -p ${GITHUB_WORKSPACE}/workspace/${{ github.event.inputs.DEVICE_PATH }}
+        mkdir -p ${GITHUB_WORKSPACE}/workspace/kernel/alps/tb8163p3_bsp
+        set -o allexport
+        export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        export TARGET_FORCE_PREBUILT_KERNEL=true
+        echo "PREBUILT_KERNEL=true" >> $GITHUB_ENV
+        if [[ `which git` ]]; then
+          echo -e "\n`git --version`\n";
+          git config --global core.longpaths true
+          git config --global core.protectNTFS false
+          git config --global http.postBuffer 524288000 # Increase post buffer size (example value in bytes)
+          git config --global http.lowSpeedLimit 0      # Disable low speed limit
+          git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
+        else
+          echo -e "\nGit needed installing now....\n";
+          sudo DEBIAN_FRONTEND=noninteractive sudo apt-get install -yq git >/dev/null;
+          git config --global core.longpaths true
+          git config --global core.protectNTFS false
+          git config --global http.postBuffer 524288000 # Increase post buffer size (example value in bytes)
+          git config --global http.lowSpeedLimit 0      # Disable low speed limit
+          git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
+        fi;
+      continue-on-error: true
+        
+    - name: Restore Workspace
+      if: github.event.inputs.CACHING_ENABLED == 'true'
+      id: restore-workspace-cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ./workspace
+          ~/opt/hostedtoolcache
+          ~/var/cache/apt/archives
+        key: ${{ runner.os }}-workspace-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}
+        restore-keys: |
+          ${{ runner.os }}-workspace-${{ github.event.pull_request.head.sha || github.sha }}
+          ${{ runner.os }}-workspace
+          ${{ runner.os }}
+        enableCrossOsArchive: true
+      continue-on-error: true
+
+    # Setup clone 1
+    - name: Clone Kernel Repo
+      if: steps.restore-workspace-cache.outputs.cache-hit != 'true' && env.PREBUILT_KERNEL == 'false'
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ github.actor }}/android_kernel_mt8163
+        path: ./workspace/kernel/alps/tb8163p3_bsp
+        ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
+
+    # Setup clone 2
+    - name: Clone Recovery Repo
+      if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ github.repository }}
+        path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
+        ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
+
+    - name: Commit ID SHA
+      run: |
+        if [ ${{ steps.restore-workspace-cache.outputs.cache-hit != 'true' }} ]; then
+          echo "##### NOTE: Not Building From Cached Files  #####"
+        else
+          echo "##### NOTE: Building From Cached Files  #####"
+        fi
+        export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        git config --global --add safe.directory .
+        [[ -d ./kernel/alps/tb8163p3_bsp ]] && cd kernel/alps/tb8163p3_bsp || [[ -d ./"${{ github.event.inputs.DEVICE_PATH }}" ]] && cd "${{ github.event.inputs.DEVICE_PATH }}"
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT ID: $calculatedSha"
+        echo "COMMIT_ID=$calculatedSha" >> $GITHUB_ENV
+      working-directory: workspace
+      continue-on-error: true
+      
+    - name: Prepare The Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get -y upgrade
+        sudo apt-get -y install git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 unzip fontconfig
+        # sudo apt-get -y install git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig git repo liblzma-dev m4 libstdc++
+        sudo apt-get -y install gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib lib32ncurses5-dev x11proto-core-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc ccache lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev lzop pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libtinfo5 libgflags-dev
+        sudo add-apt-repository universe
+        sudo apt-get -y install libncurses5
+      continue-on-error: true
+
+    - name: Install OpenJDK
+      if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
+      uses: actions/setup-java@v5
+      with:
+        distribution: zulu
+        java-version: 8
+
+    - name: Install Git-Repo
+      if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
+      run: |
+        mkdir ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
+        
+    - name: Check Build Tree
+      uses: haya14busa/action-cond@v1.2.1
+      id: buildtree
+      with:
+        cond: ${{ inputs.MANIFEST_BRANCH == '11' || inputs.MANIFEST_BRANCH == '12.1' }}
+        if_true: aosp
+        if_false: omni
+
+    - name: Check Manifest Branch
+      uses: haya14busa/action-cond@v1
+      id: manifest
+      with:
+        cond: ${{ github.event.inputs.MANIFEST_BRANCH == 'twrp-11' || github.event.inputs.MANIFEST_BRANCH == 'twrp-12.1'  || github.event.inputs.MANIFEST_BRANCH == 'twrp-14.1' }}
+        if_true: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git
+        if_false: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git
+      
+    - name: Initialize Repo
+      if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
+      run: |
+        git config --global user.email "${GitHubMail}"
+        git config --global user.name "${GitHubName}"
+        git config --global credential.helper store
+        repo init --depth=1 -u ${{ steps.manifest.outputs.value }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+      working-directory: workspace
+
+      # git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/ -b android-9.0.0_r1 
+      # triple clone end 
+    - name: Repo Sync
+      if: steps.restore-workspace-cache.outputs.cache-hit != 'true' 
+      run: |
+        repo sync -c -j$(nproc --all) --force-sync
+      working-directory: workspace
+      continue-on-error: false
+
+    - name: Install Python 2
+      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1' && github.event.inputs.MANIFEST_BRANCH != 'twrp-14' && steps.restore-workspace-cache.outputs.cache-hit != 'true'
+      run: |
+        sudo apt-get -yq install python2 >/dev/null
+        cd /usr/bin
+        sudo ln -svf python2 python
+      continue-on-error: true
+
+    - name: Save Workspace
+      if: github.event.inputs.CACHING_ENABLED == 'true' && steps.restore-workspace-cache.outputs.cache-hit != 'true'
+      id: save-workspace-cache
+      uses: actions/cache/save@v5
+      with:
+        path: |
+          ./workspace
+          ~/opt/hostedtoolcache
+          ~/var/cache/apt/archives
+        key: ${{ steps.restore-workspace-cache.outputs.cache-primary-key }}
+        enableCrossOsArchive: true
+      continue-on-error: true
+        
+    - name: Check Build Makefile
+      run: |
+        if [ -f ${{ github.event.inputs.DEVICE_PATH }}/twrp_${{ github.event.inputs.DEVICE_NAME}}.mk ]; then
+            echo "DEVICE_MAKEFILE=twrp_${{ github.event.inputs.DEVICE_NAME }}" >> $GITHUB_ENV
+        elif [ -f ${{ github.event.inputs.DEVICE_PATH }}/omni_${{ github.event.inputs.DEVICE_NAME}}.mk ]; then
+            echo "DEVICE_MAKEFILE=omni_${{ github.event.inputs.DEVICE_NAME }}" >> $GITHUB_ENV
+        else
+            echo "No build makefile file found!"
+            echo "DEVICE_MAKEFILE=0" >> $GITHUB_ENV
+            exit
+        fi
+      working-directory: workspace
+
+    - name: Check Build Space 
+      run: |
+        echo '### Before clean ###'
+        sudo df -h
+        echo '### cleaning build environment space ###'
+        # clean build environment space
+        sudo apt-get remove -yq kubectl powershell firefox # docker-ce dotnet-sdk-8.0 dotnet-runtime-8.0 azure-cli 
+        # sudo rm -vrf /usr/share/dotnet/ >/dev/null
+        echo '### After clean ###' 
+        sudo df -h
+        echo '### Workspace directory ###'
+        sudo df . -h
+        echo '### large files in workspace dir ###'
+        sudo find . -type f -size +100M -exec du -ha {} +
+      working-directory: workspace
+      continue-on-error: true
+
+    - name: Check Workspace Contents
+      run: |
+        du . -h -d 2
+      working-directory: workspace
+      continue-on-error: true
+
+    #- name: Setup Compiler * Clang-12
+    #  uses: rlalik/setup-cpp-compiler@master
+    #  with:
+    #    compiler: 'clang-12'
+    #  continue-on-error: true
+
+     # export CROSS_COMPILE=arm-linux-androidkernel-
+     # export EXTRA_CMDS='bootopt=64S3,32N2,32N2 androidboot.selinux=permissive androidboot.init_fatal_reboot_target=recovery console=ttyS0,921600n1 root=/dev/ram androidboot.hardware=mt8163 firmware_class.path=/vendor/firmware build=06_12_24(gA1A470FC) lcm_id=4000 brightness=8388613 avdd=52 vcom=46 skip_initramfs ro rootwait init=/init root=PARTUUID=e7099731-95a6-45a6-a1e5-1b6aba032cf1 androidboot.verifiedbootstate=orange androidboot.atm=disabled androidboot.meta_log_disable=0 androidboot.dtbo_idx=0 printk.disable_uart=0 bootprof.pl_t=1680 bootprof.lk_t=7245 boot_reason=4 androidboot.serialno=SC5SKNLBEYIRBMR4 androidboot.bootreason=reboot mrdump_ddrsv=yes mrdump_rsvmem=0x56000000,0x400000,0x42000000,0x17f740,0x54000000,0x80000'
+
+    - name: System Compilers
+      run: |
+        gcc -v --help 2> /dev/null | grep -iv deprecated | sed -n '/^ *-std=\([^<][^ ]\+\).*/ {s//\1/p}';
+        echo -e "\nExtras:\n";
+        # gcc -print-prog-name=cc1 --help | grep "std" 2>/dev/null;
+      continue-on-error: true
+
+    - name: Install LLVM Embedded Toolchain for Arm
+      if: env.PREBUILT_KERNEL == 'false'
+      uses: stellar-aria/llvm-embedded-toolchain-for-arm-action@latest
+      with:
+        release: '15.0.2' # <-- The compiler release to use  
+      continue-on-error: true
+
+    - name: Building Image
+      if: env.PREBUILT_KERNEL == 'true'
+      run: |
+        cd workspace
+        export RECOVERY_VARIANT="twrp"
+        source build/envsetup.sh
+        export USE_NINJA=false
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        export LC_ALL=C
+        ninja -t restat
+        lunch ${{ env.DEVICE_MAKEFILE }}-eng && make clean && make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all)
+      continue-on-error: false
+    
+    - name: Check File
+      if: env.PREBUILT_KERNEL == 'false'
+      uses: Tec4Sho/check-file-action@v2
+      with:
+        repository: false
+        analyzer: 0
+        makefile: ${{ env.DEVICE_MAKEFILE }}-eng 
+        filename: ${{ github.event.inputs.BUILD_TARGET }}image
+        filetype: c mk
+        database: true
+        absolute: false
+        internal: true
+        pattern: ${{ inputs.check-file }}
+        project: true
+        dirname: workspace # 'workspace/kernel/alps/tb8163p3_bsp'
+        content: true
+        include: true
+        recheck: false
+        repair: false
+        report: true
+        update: false
+        upload: true
+        source: 0
+        stored: true
+        number: 0
+        output: 1
+        module: false
+        build: 5
+        clean: true
+        cache: false
+        limit: 200
+        linux: false
+        arch: arm
+      continue-on-error: false
+      
+    - name: Build Date ${{ github.event.repository.updated_at }} # Output will be use in Release
+      run: |
+        echo "Done building your ${{ github.event.inputs.BUILD_TARGET }}.img"
+        echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+        DEVICE_TREE_URL="${{ github.event.inputs.DEVICE_TREE }}"
+        if [[ "${DEVICE_TREE_URL}" == *.git ]]; then
+          DEVICE_TREE_URL="${DEVICE_TREE_URL%.git}"
+        fi
+        echo "DEVICE_TREE_URL=${DEVICE_TREE_URL}" >> $GITHUB_ENV
+        
+    - name: Checking if ${{ github.event.inputs.BUILD_TARGET }} Exist
+      run: |
+        if [ -f out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery.img ]; then
+            echo "RECOVERY_TYPE=recovery" >> $GITHUB_ENV
+            echo "recovery.img file found!"
+            echo "MD5_IMG=$(md5sum out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
+        elif [ -f out/target/product/${{ github.event.inputs.DEVICE_NAME }}/boot.img ]; then
+            echo "RECOVERY_TYPE=boot" >> $GITHUB_ENV
+            echo "boot.img file found!"
+            echo "MD5_IMG=$(md5sum out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ github.event.inputs.BUILD_TARGET }}.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
+        elif [ -f out/target/product/${{ github.event.inputs.DEVICE_NAME }}/vendor_boot.img ]; then
+            echo "RECOVERY_TYPE=vendor_boot" >> $GITHUB_ENV
+            echo "vendor_boot.img file found!"
+            echo "MD5_IMG=$(md5sum out/target/product/${{ github.event.inputs.DEVICE_NAME }}/vendor_boot.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
+        else
+            echo "ERROR: No ${{ github.event.inputs.BUILD_TARGET }} image found! Exiting ...."
+            exit 0
+        fi
+      working-directory: workspace
+        
+    - name: Include ${{ github.event.inputs.BUILD_TARGET }} Installer
+      run: |
+        if [ ${{ github.event.inputs.BUILD_TARGET }} == 'recovery' ]; then
+          export USE_RECOVERY_INSTALLER=true
+          export RECOVERY_INSTALLER_PATH=bootable/recovery/installer
+          cd workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/
+          wget https://github.com/kinguser981/recovery-installer/releases/download/zip/recovery-installer.zip
+          zip -ur recovery-installer.zip ${{ env.RECOVERY_TYPE }}.img
+        fi
+      continue-on-error: true
+        
+    - name: Uploading ${{ github.event.inputs.BUILD_TARGET }} Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery-installer.zip
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/${{ env.RECOVERY_TYPE }}.img
+        name: Unofficial TWRP for Alps ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+        tag_name: ${{ github.run_id }}
+        body: |
+    - name: Release ramdisk-${{ github.event.inputs.BUILD_TARGET }}
+      uses: softprops/action-gh-release@4634c16e79c963813287e889244c50009e7f0981
+      with:
+        files: |
+          workspace/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/ramdisk-recovery.*  
+        name: Unofficial TWRP for Alps ${{ github.event.inputs.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
+        tag_name: ${{ github.run_id }}
+        body: |
+          Manifest: ${{ github.event.inputs.MANIFEST_BRANCH }}
+          Target: ${{ github.event.inputs.BUILD_TARGET}}.img
+          Device: [Device Tree/Branch](${{ env.DEVICE_TREE_URL }}/${{ github.event.inputs.DEVICE_TREE_BRANCH }})
+          Commit: Most recent [commit](${{ env.DEVICE_TREE_URL }}/commit/${{ env.COMMIT_ID }}) during building.
+          MD5 (img): ${{ env.MD5_IMG }}
+          

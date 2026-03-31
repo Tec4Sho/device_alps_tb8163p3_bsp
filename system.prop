@@ -1,0 +1,128 @@
+
+ro.build.characteristics=tablet
+# end build properties
+#
+# from device/mediateksample/tb8163p3_bsp/system.prop
+#
+#
+# system.prop for generic sdk
+#
+
+vendor.rild.libpath=mtk-ril.so
+init.userspace_reboot.is_supported=true
+zygote.critical_window.minute=10
+ro.storage_structure=10
+ro.sys.usb.storage.type=mtp,adb,mass_storage
+ro.config.hw_quickpoweron=1
+sys.usb.mtp.batchcancel=1
+sys.config.phone_start_early=1
+
+ro.opengles.version=196609
+
+wifi.direct.interface=p2p0
+dalvik.vm.heapgrowthlimit=128m
+dalvik.vm.heapsize=256m
+
+# USB MTP WHQL
+ro.sys.usb.mtp.whql.enable=0
+
+# Power off opt in IPO
+sys.ipo.pwrdncap=2
+
+# USB BICR function
+ro.sys.usb.bicr=no
+
+# USB Charge only function
+ro.sys.usb.charging.only=yes
+
+ro.zygote.preload.enable=0
+
+# temporary enables NAV bar (soft keys)
+qemu.hw.mainkeys=0
+
+ro.kernel.zio=38,108,105,16
+#ro.kernel.qemu=1
+#ro.kernel.qemu.gles=0
+ro.boot.selinux=disable
+
+# Disable dirty region for Mali
+debug.hwui.render_dirty_regions=false
+
+ro.sf.lcd_density=160
+
+# disable ipo for development
+sys.ipo.disable=1
+
+ro.mtk_alps_box_support=1
+
+#for mali
+ro.hardware.gralloc=mt8163.mali
+
+
+#
+# ADDITIONAL_BUILD_PROPERTIES
+#
+ro.treble.enabled=true
+persist.sys.dalvik.vm.lib.2=libart.so
+dalvik.vm.isa.arm.variant=cortex-a53
+dalvik.vm.isa.arm.features=default
+net.bt.name=Android
+dalvik.vm.stack-trace-dir=/data/anr
+
+# begin fota properties
+ro.fota.platform=MTK8163_9.0
+ro.fota.type=pad
+ro.fota.id=sn
+ro.fota.app=5
+ro.fota.battery=0
+ro.boot.vendor.overlay.theme=com.adups.fota.overlay
+ro.fota.oem=hcn20008163_9.0
+ro.fota.device=AJ002-OB
+ro.fota.version=AJ_2025.05.23.00
+# end fota properties
+ro.expect.recovery_id=0x87de170763fcb4ca21dfa1edc79adbf1acefd591000000000000000000000000
+
+# start redstone OTA properties
+
+ro.redstone.brand=alps
+ro.redstone.model=tb8163p3_bsp
+ro.redstone.model.hcn=AJ002-OB
+ro.redstone.version=AJ002-OB_AJ_2025.05.23.00
+# end redstone OTA properties
+# 
+debug.composition.type=gpu
+debug.performance.tuning=1
+video.accelerate.hw=1
+
+# Add USB Adoptable storage support
+persist.sys.adoptable=force_on
+# Usb check
+persist.hcn.fsckexternaldevice=true
+ro.vendor.vndk.version=28
+ro.board.first_api_level=28
+ro.zygote=zygote32
+ro.logd.size.stats=64K
+log.tag.stats_log=V
+ro.sf.hwrotation=270
+persist.service.acm.enable=0
+ro.mount.fs=EXT4
+ro.sys.sdcardfs=1
+ro.sf.lcd_density=213
+ro.treble.enabled=true
+ro.mtk_multi_patition=1
+ro.opengles.version=196609
+ro.mtk_bsp_package=1
+ro.mediatek.chip_ver=S01
+ro.hardware.gralloc=mt8163.mali
+ro.mediatek.platform=MT8163
+ro.vendor.mtk_world_phone_policy=0
+ro.mtk_key_manager_kb_path=1
+ro.vendor.mtk_pq_support=2
+ro.vendor.mtk_pq_color_mode=1
+ro.vendor.mtk_miravision_support=1
+ro.vendor.mtk_oma_drm_support=1
+ro.vendor.mediatek.platform=MT8163
+ro.vendor.mtk_config_max_dram_size=0x80000000
+ro.frp.pst=/dev/block/platform/mtk-msdc.0/11230000.MSDC0/by-name/frp
+ro.vendor.mediatek.version.release=alps-mp-p0.mp6-V1.364
+dalvik.vm.mtk-stack-trace-file=/data/anr/mtk_traces.txt
