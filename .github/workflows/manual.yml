@@ -1,0 +1,54 @@
+# This is a basic workflow that is manually triggered
+
+name: Manual workflow
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    types: [closed]
+    # Inputs the workflow accepts.
+    name: Cleanup caches when a Dispatch is closed
+
+# 🔑 1. Make sure the default token really has the right scope
+permissions:
+  actions: write       # needed for `gh cache delete`
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Install GitHub CLI
+        run: |
+          sudo dnf -y install gh
+          gh --version
+
+      # 🔑 2. Authenticate gh with the job-scoped GITHUB_TOKEN
+      - name: Authenticate gh
+        env:
+          GH_TOKEN: ${{ github.token }}   # gh looks for GH_TOKEN (or GITHUB_TOKEN)
+        run: |
+          echo "$GH_TOKEN" | gh auth login --with-token
+
+      # 🔑 3. List and delete all caches created for this PR branch
+      - name: Delete caches created by the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO:  ${{ github.repository }}
+          PR_REF:   refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          echo "Listing caches for $PR_REF"
+          ids=$(gh cache list --ref "$PR_REF" --json id --jq '.[].id')
+          if [ -z "$ids" ]; then
+            echo "No caches found – nothing to do."
+            exit 0
+          fi
+          echo "Deleting caches:"
+          for id in $ids; do
+            echo "  • $id"
+            gh cache delete "$id"
+          done
+          echo "✅  Done"
