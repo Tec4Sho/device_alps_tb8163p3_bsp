@@ -76,7 +76,6 @@ jobs:
         echo "Device Name: ${{ github.event.inputs.DEVICE_NAME }}"
         echo "Build Target: ${{ github.event.inputs.BUILD_TARGET }}image"
         echo "Include Recovery Installer: ${{ github.event.inputs.RECOVERY_INSTALLER }}"
-        echo "Release recovery.tar For Samsung devices: ${{ github.event.inputs.RECOVERY_TAR }}"
         echo "::endgroup::"
         
     - name: Check disk space
@@ -91,7 +90,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         keep-count: 5
-        remove-tag: true
+        remove-tags: true
         keep-old-minor-releases: false
         keep-old-minor-releases-count: 5
     
@@ -124,26 +123,6 @@ jobs:
         sudo apt-get autoremove -y >/dev/null 2>&1
         sudo apt-get autoclean -y >/dev/null 2>&1
         echo "some packages purged"
-          
-    - name: Check disk space again 
-      run: |
-        sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr 2>/dev/null | head -n 20
-        sudo df -h
-        sudo rm -rf /opt/hostedtoolcache/ && \
-        sudo rm -rf /tmp/* && \
-        sudo find /home/runner/actions-runner/cached/ -xdev -type f -size +250M -delete 2>/dev/null && \
-        sudo find /var/log -xdev -name "*.gz" -mtime +10 -delete && \
-        sudo df -h /
-        sudo rm -rf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86//bin/go
-        export GOOS=linux
-        export GOARCH=arm
-        export GOARM=7
-        mkdir -p /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86
-        go mod init "${{ github.event.inputs.BUILD_TARGET }}"image
-        sudo wget -qO 'go1.26.1.linux-armv6l.tar.gz' 'https://go.dev/dl/go1.26.1.linux-armv6l.tar.gz' >/dev/null;
-        sudo tar xf 'go1.26.1.linux-armv6l.tar.gz' -C '/home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/' 'go' && rm -vrf 'go1.26.1.linux-armv6l.tar.gz' && echo -e "\ngo1.26.1.linux-armv6l.tar.gz --- Was Installed Successfully";
-        sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr 2>/dev/null | head -n 20
-        cp -pf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin
         
     - name: Clone Recovery Repo
       uses: actions/checkout@v6
@@ -214,14 +193,36 @@ jobs:
         git config --global user.name "${GitHubName}"
         git config --global credential.helper store
         repo init --depth=1 -u ${{ steps.manifest.outputs.value }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
-      continue-on-error: false    
+      continue-on-error: false
   
     - name: Repo Sync
       run: |
         cd workspace
         repo sync -j$(nproc) --force-sync
         cd ./${{ github.event.inputs.DEVICE_PATH }}
-        gh cache delete --all >/dev/null || echo 'No gh program found in system'
+        gh cache delete --all >/dev/null || echo 'No gh program found in system';
+
+    - name: Check disk space again 
+      run: |
+        sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr 2>/dev/null | head -n 20
+        sudo df -h
+        sudo rm -rf /opt/hostedtoolcache/ && \
+        sudo rm -rf /tmp/* && \
+        sudo find /home/runner/actions-runner/cached/ -xdev -type f -size +200M -delete 2>/dev/null && \
+        sudo find /var/log -xdev -name "*.gz" -mtime +10 -delete && \
+        sudo df -h /
+        mkdir -p /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin
+        [ -e /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86//bin/go ] && sudo mv -vf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86//bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/
+        export GOOS=linux
+        export GOARCH=arm
+        export GOARM=7
+        go mod init "${{ github.event.inputs.BUILD_TARGET }}"image
+        sudo wget -qO 'go1.26.1.linux-armv6l.tar.gz' 'https://go.dev/dl/go1.26.1.linux-armv6l.tar.gz' >/dev/null;
+        sudo tar xf 'go1.26.1.linux-armv6l.tar.gz' -C '/home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/' 'go' && rm -vrf 'go1.26.1.linux-armv6l.tar.gz' && echo -e "\ngo1.26.1.linux-armv6l.tar.gz --- Was Installed Successfully";
+        sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr 2>/dev/null | head -n 20
+        cp -prf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/ 2>/dev/null;
+        /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go version 2>/dev/null;
+      continue-on-error: true
 
     - name: Check Build Makefile
       run: |
