@@ -57,7 +57,7 @@ on:
 jobs:
   build:
     name: Build TWRP by ${{ github.actor }}
-    runs-on: ubuntu-22.04  # Stay on x86 to avoid ARM errors
+    runs-on: ubuntu-24.04  # Stay on x86 to avoid ARM errors
     if: github.event.repository.owner.id == github.event.sender.id
     env:
       GITHUB_TOKEN: ${{ secrets.TWRP }}
@@ -154,13 +154,21 @@ jobs:
         
     - name: Prepare The Environment
       run: |
+        sudo dpkg --add-architecture i386
         sudo apt-get -yqq update
         # sudo apt-get -y upgrade
         # sudo apt-get -y install git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 unzip fontconfig
         # sudo apt-get -y install git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig git repo liblzma-dev m4 libstdc++
-        sudo apt-get -yqq install zip unzip fontconfig gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib lib32ncurses5-dev x11proto-core-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev lzop pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libtinfo5 libgflags-dev golang-go >/dev/null;
-        sudo add-apt-repository universe
-        sudo apt-get -yqq install libncurses5
+        # sudo apt-get -yqq install zip unzip fontconfig gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib lib32ncurses5-dev x11proto-core-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev lzop pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libtinfo5 libgflags-dev golang-go >/dev/null;
+        sudo apt-get install -yqq libncurses6 libncurses-dev libssl-dev bc bison build-essential curl flex g++-multilib gcc-multilib git gnupg gperf lib32ncurses-dev lib32z1-dev liblz4-tool libxml2-utils lzop rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
+        sudo apt-get install -yqq lib32ncurses-dev lib32z1-dev libc6-dev-i386
+        curl -O http://launchpadlibrarian.net/648013231/libtinfo5_6.4-2_amd64.deb
+        curl -O http://launchpadlibrarian.net/648013227/libncurses5_6.4-2_amd64.deb
+        sudo dpkg -i libtinfo5_6.4-2_amd64.deb
+        sudo dpkg -i libncurses5_6.4-2_amd64.deb
+        rm *.deb      
+        # sudo add-apt-repository universe >/dev/null 2>&1
+        # sudo apt-get -yqq install libncurses5
       continue-on-error: true
 
     - name: Clone Recovery Repo
@@ -173,7 +181,7 @@ jobs:
     - name: Install OpenJDK
       uses: actions/setup-java@v4
       with:
-        distribution: zulu
+        distribution: temurin # zulu
         java-version: 8
 
     - name: Install Git-Repo
