@@ -58,8 +58,6 @@ jobs:
   build:
     name: Build TWRP by ${{ github.actor }}
     runs-on: ubuntu-22.04  # Stay on x86 to avoid ARM errors
-    container:
-      image: ubuntu:22.04  # Best for AOSP 9; natively includes libncurses5
     if: github.event.repository.owner.id == github.event.sender.id
     env:
       GITHUB_TOKEN: ${{ secrets.TWRP }}
@@ -152,9 +150,13 @@ jobs:
       if: github.event.inputs.MAXIMIZE_BUILD_SPACE == 'true'
       uses: easimon/maximize-build-space@master
       with:
-        root-reserve-mb: 12000 # Example: Reserve 12 GB for the root directory
+        root-reserve-mb: 6000 # Example: Reserve 12 GB for the root directory
         swap-size-mb: 1024 # Example: Reserve 4 GB for swap file
-        remove-dotnet: 'true' # Example: Remove the .NET SDK to free space 
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'   # Extra 2GB of bloat
+        remove-docker-images: 'true' 
       continue-on-error: true
         
     - name: Prepare The Environment
@@ -203,9 +205,10 @@ jobs:
       run: |
         cd workspace
         repo sync -j$(nproc) --force-sync
-        cd ./${{ github.event.inputs.DEVICE_PATH }}
+        rm -rf .repo/project-objects .repo/projects
         gh cache delete --all >/dev/null || echo 'No gh program found in system';
-
+      continue-on-error: false
+       
     - name: Check disk space again 
       run: |
         sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr 2>/dev/null | head -n 20
