@@ -125,13 +125,6 @@ jobs:
         sudo apt-get autoclean -y >/dev/null 2>&1
         echo "some packages purged"
       continue-on-error: true
-        
-    - name: Clone Recovery Repo
-      uses: actions/checkout@v3
-      with:
-        repository: ${{ github.repository }}
-        path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
-        ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
       
     - name: cleanup old action artifacts
       if: github.event.inputs.CLEAN_ENVIRONMENT == 'true'
@@ -170,6 +163,13 @@ jobs:
         sudo apt-get -yqq install libncurses5
       continue-on-error: true
 
+    - name: Clone Recovery Repo
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ github.repository }}
+        path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
+        ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}  
+
     - name: Install OpenJDK
       uses: actions/setup-java@v4
       with:
@@ -206,7 +206,8 @@ jobs:
         cd workspace
         repo sync -j$(nproc) --force-sync
         rm -rf .repo/project-objects .repo/projects
-        gh cache delete --all >/dev/null || echo 'No gh program found in system';
+        cd ${{ github.event.inputs.DEVICE_PATH }}
+        gh cache delete --all 2>/dev/null || echo 'No gh program or git directory was found';
       continue-on-error: false
        
     - name: Check disk space again 
