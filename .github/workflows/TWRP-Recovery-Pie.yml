@@ -143,7 +143,7 @@ jobs:
       if: github.event.inputs.MAXIMIZE_BUILD_SPACE == 'true'
       uses: easimon/maximize-build-space@master
       with:
-        root-reserve-mb: 11000 # Example: Reserve 12 GB for the root directory
+        root-reserve-mb: 16000 # Example: Reserve 12 GB for the root directory
         swap-size-mb: 1024 # Example: Reserve 4 GB for swap file
         remove-dotnet: 'true'
         remove-android: 'true'
