@@ -250,14 +250,14 @@ jobs:
         # cd /usr/bin
         # sudo ln -vsf python2 python
         # 1. Download legacy Python 2.7 packages from Ubuntu 20.04 (Focal)
-        curl -O http://ubuntu.com
-        curl -O http://ubuntu.com
-        curl -O http://ubuntu.com
-        curl -O http://ubuntu.com
-        sudo dpkg -i libpython2.7-minimal_2.7.18-1~20.04.4_amd64.deb
-        sudo dpkg -i python2.7-minimal_2.7.18-1~20.04.4_amd64.deb
-        sudo dpkg -i libpython2.7-stdlib_2.7.18-1~20.04.4_amd64.deb
-        sudo dpkg -i python2.7_2.7.18-1~20.04.4_amd64.deb
+        curl -L -o libpython2.7-minimal.deb http://kernel.org
+        curl -L -o python2.7-minimal.deb http://kernel.org
+        curl -L -o libpython2.7-stdlib.deb http://kernel.org
+        curl -L -o python2.7.deb http://kernel.org
+        sudo dpkg -i libpython2.7-minimal.deb
+        sudo dpkg -i python2.7-minimal.deb
+        sudo dpkg -i libpython2.7-stdlib.deb
+        sudo dpkg -i python2.7.deb
         sudo ln -sf /usr/bin/python2.7 /usr/bin/python2
         sudo ln -sf /usr/bin/python2.7 /usr/bin/python
       continue-on-error: false
