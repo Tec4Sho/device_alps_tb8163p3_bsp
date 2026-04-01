@@ -59,7 +59,7 @@ jobs:
     name: Build TWRP by ${{ github.actor }}
     runs-on: ubuntu-22.04  # Stay on x86 to avoid ARM errors
     container:
-      image: ubuntu:18.04  # Best for AOSP 9; natively includes libncurses5
+      image: ubuntu:22.04  # Best for AOSP 9; natively includes libncurses5
     if: github.event.repository.owner.id == github.event.sender.id
     env:
       GITHUB_TOKEN: ${{ secrets.TWRP }}
