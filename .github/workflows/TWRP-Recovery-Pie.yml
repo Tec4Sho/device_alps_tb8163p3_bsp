@@ -223,9 +223,10 @@ jobs:
         [ -e /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go ] && sudo rm -vf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/go
         sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr 2>/dev/null | head -n 20
         # cp -vprf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/ /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/ || cp -vf ${{ github.action_path }}/scripts/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/
-        [ -e /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go ] && cp -vf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/
-        /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go version 2>/dev/null;
-        chmod -vR 0755 /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/go 2>/dev/null;
+        [ -e /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go ] && cp -vf /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/ 2>/dev/null;
+        # /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go version 2>/dev/null;
+        chmod -v 0755 /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/prebuilts/go/linux-x86/bin/go 2>/dev/null;
+        chmod -v 0755 /home/runner/work/device_alps_tb8163p3_bsp/device_alps_tb8163p3_bsp/workspace/platform/prebuilts/go/linux-x86/bin/go 2>/dev/null;
       continue-on-error: true
 
     - name: Check Build Makefile
