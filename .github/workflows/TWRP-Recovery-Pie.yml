@@ -243,6 +243,13 @@ jobs:
             echo "::error::No device name makefile file found!"
         fi
       continue-on-error: false
+
+    - name: Install Python 2.7.18
+      if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '2.7.18'
+      continue-on-error: false
       
     - name: Install Python 2
       if: github.event.inputs.MANIFEST_BRANCH != 'twrp-11' && github.event.inputs.MANIFEST_BRANCH != 'twrp-12.1'  && github.event.inputs.MANIFEST_BRANCH != 'twrp-14'
@@ -250,11 +257,11 @@ jobs:
         # sudo apt-get -y -q -q install python2
         # cd /usr/bin
         # sudo ln -vsf python2 python
-        curl https://pyenv.run | bash
-        pyenv install 2.7.18 >/dev/null;
-        pyenv global 2.7.18 >/dev/null;
-        curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-        python2.7 get-pip.py
+        # curl https://pyenv.run | bash
+        # pyenv install 2.7.18 >/dev/null;
+        # pyenv global 2.7.18 >/dev/null;
+        # curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+        # python2.7 get-pip.py
         # sudo ln -sf /usr/local/bin/python2.7 /usr/bin/python
         # sudo ln -sf /usr/local/bin/python2.7 /usr/bin/python2
         python --version 2>/dev/null;
