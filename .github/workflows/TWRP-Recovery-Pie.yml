@@ -161,8 +161,8 @@ jobs:
         # sudo apt-get -y install git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 unzip fontconfig
         # sudo apt-get -y install git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig git repo liblzma-dev m4 libstdc++
         # sudo apt-get -yqq install zip unzip fontconfig gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib lib32ncurses5-dev x11proto-core-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev lzop pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libtinfo5 libgflags-dev golang-go >/dev/null;
-        sudo apt-get install -yqq python3 libncurses6 libncurses-dev libssl-dev bc bison build-essential curl flex g++-multilib gcc-multilib git gnupg gperf lib32ncurses-dev lib32z1-dev liblz4-tool libxml2-utils lzop rsync schedtool squashfs-tools xsltproc zip zlib1g-dev >/dev/null;
-        sudo apt-get install -yqq lib32ncurses-dev lib32z1-dev libc6-dev-i386 >/dev/null;
+        sudo apt-get install -yqq repo python3 libncurses6 libncurses-dev libssl-dev bc bison build-essential curl flex g++-multilib gcc-multilib git gnupg gperf lib32ncurses-dev lib32z1-dev liblz4-tool libxml2-utils lzop rsync schedtool squashfs-tools xsltproc zip zlib1g-dev >/dev/null;
+        sudo apt-get install -yqq lib32ncurses-dev lib32z1-dev libc6-dev-i386 wget >/dev/null;
         curl -O http://launchpadlibrarian.net/648013231/libtinfo5_6.4-2_amd64.deb >/dev/null;
         curl -O http://launchpadlibrarian.net/648013227/libncurses5_6.4-2_amd64.deb >/dev/null;
         sudo dpkg -i libtinfo5_6.4-2_amd64.deb
