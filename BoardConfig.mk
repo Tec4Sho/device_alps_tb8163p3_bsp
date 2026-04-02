@@ -239,9 +239,10 @@ else ifeq ($(RECOVERY_VARIANT),shrp)
   TW_Y_OFFSET := 0
   #TW_W_OFFSET := 0
   #TW_H_OFFSET := 0
-else
+else 
+  # landscape_mdpi portrait_mdpi
   TW_OEM_BUILD := true
-  TW_THEME := portrait_mdpi # landscape_mdpi portrait_mdpi
+  TW_THEME := portrait_hdpi
   # TW_CUSTOM_THEME := $(DEVICE_PATH)/twrp/twres
   # TWRP_THEME_LOC := $(TW_CUSTOM_THEME)
   # TARGET_RECOVERY_DEVICE_DIRS += $(DEVICE_PATH)
@@ -249,7 +250,7 @@ else
   RECOVERY_VARIANT := twrp
   # VNDK Fix
   BOARD_VNDK_VERSION := current
-  BOARD_VNDK_RUNTIME_DISABLE := false
+  BOARD_VNDK_RUNTIME_DISABLE := true
   # Uses Custom ARM Busybox w/ Toybox
   # RECOVERY_BUSYBOX_SYMLINKS := true
   # RECOVERY_BUSYBOX_TOOLS := true
