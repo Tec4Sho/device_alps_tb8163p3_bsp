@@ -260,14 +260,6 @@ jobs:
         python --version 2>/dev/null;
       continue-on-error: false
 
-    - name: Fix TWRP Theme Copy Bug
-      run: |
-        # This finds the file with the broken space/glob and fixes the path
-        find bootable/recovery/gui -name "*.mk" -exec sed -i 's|portrait_hdpi /\*|portrait_hdpi/*|g' {} +
-        # Also fix potential empty variable issues
-        find bootable/recovery/gui -name "*.mk" -exec sed -i 's| \/\*| /*|g' {} +
-      continue-on-error: false
-
     - name: Building Image 
       run: |
         # sudo rm -rf /opt/hostedtoolcache && \
