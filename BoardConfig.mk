@@ -34,7 +34,8 @@ TARGET_SUPPORTS_64_BIT_APPS := false
 TARGET_IS_32_BIT := true
 
 TARGET_KERNEL_HEADER_ARCH := arm
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-eabi- # arm-linux-androideabi-
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-eabi-
+# arm-linux-androideabi-
 TARGET_USES_UNCOMPRESSED_KERNEL := false
 
 # APEX
@@ -163,10 +164,10 @@ ifeq ($(RECOVERY_VARIANT),ofrp)
   # Uses Custom ARM Busybox w/ Toybox
   #RECOVERY_BUSYBOX_SYMLINKS := false
   #RECOVERY_BUSYBOX_TOOLS := false
-  DEVICE_RESOLUTION := 1080x600                 # The Resolution of your Device
-  BOARD_SCREEN_WIDTH := 1080                     # Device resolution width
-  BOARD_SCREEN_HEIGHT := 600                     # Device resolution height
-  TARGET_SCREEN_HEIGHT := 600                    # The height mdpi
+  DEVICE_RESOLUTION := 1080x600
+  BOARD_SCREEN_WIDTH := 1080
+  BOARD_SCREEN_HEIGHT := 600
+  TARGET_SCREEN_HEIGHT := 600
   TARGET_SCREEN_WIDTH := 1080
   # OF Offset X Y
   TARGET_RECOVERY_OVERSCAN_PERCENT := 0
@@ -189,15 +190,20 @@ else ifeq ($(RECOVERY_VARIANT),pbrp)
   # Uses Custom ARM Busybox w/ Toybox
   # RECOVERY_BUSYBOX_SYMLINKS := false
   # RECOVERY_BUSYBOX_TOOLS := false
-  DEVICE_RESOLUTION := 720x1280                 # The Resolution of your Device
+  DEVICE_RESOLUTION := 720x1280
+  # The Resolution of your Device
   # BOARD_SCREEN_WIDTH := 1280                     # Device resolution width
   # BOARD_SCREEN_HEIGHT := 720                     # Device resolution height
   # TARGET_SCREEN_HEIGHT := 1024                    # The height mdpi
   # TARGET_SCREEN_WIDTH := 600
-  BOARD_SCREEN_WIDTH := 720       # 600 720 True width mdpi
-  BOARD_SCREEN_HEIGHT := 1280     # 1024 1280 True height mdpi
-  DEVICE_SCREEN_WIDTH := 720      # Device resolution width
-  DEVICE_SCREEN_HEIGHT := 1280    # Device resolution height
+  BOARD_SCREEN_WIDTH := 720
+  # 600 720 True width mdpi
+  BOARD_SCREEN_HEIGHT := 1280
+  # 1024 1280 True height mdpi
+  DEVICE_SCREEN_WIDTH := 720
+  # Device resolution width
+  DEVICE_SCREEN_HEIGHT := 1280
+  # Device resolution height
   TARGET_SCREEN_WIDTH := 720    
   TARGET_SCREEN_HEIGHT := 1280
   # Force the touch engine to use the Kernel's 'Ghost' range
@@ -254,15 +260,20 @@ else
   # Uses Custom ARM Busybox w/ Toybox
   # RECOVERY_BUSYBOX_SYMLINKS := true
   # RECOVERY_BUSYBOX_TOOLS := true
-  DEVICE_RESOLUTION := 720x1280                 # The Resolution of your Device
+  DEVICE_RESOLUTION := 720x1280                 
+  # The Resolution of your Device
   # BOARD_SCREEN_WIDTH := 1280                     # Device resolution width
   # BOARD_SCREEN_HEIGHT := 720                     # Device resolution height
   # TARGET_SCREEN_HEIGHT := 1024                    # The height mdpi
   # TARGET_SCREEN_WIDTH := 600
-  BOARD_SCREEN_WIDTH := 720       # 600 720 True width mdpi
-  BOARD_SCREEN_HEIGHT := 1280     # 1024 1280 True height mdpi
-  DEVICE_SCREEN_WIDTH := 720      # Device resolution width
-  DEVICE_SCREEN_HEIGHT := 1280    # Device resolution height
+  BOARD_SCREEN_WIDTH := 720
+  # 600 720 True width mdpi
+  BOARD_SCREEN_HEIGHT := 1280
+  # 1024 1280 True   height mdpi
+  DEVICE_SCREEN_WIDTH := 720
+  # Device resolution width
+  DEVICE_SCREEN_HEIGHT := 1280
+  # Device resolution height
   TARGET_SCREEN_WIDTH := 720    
   TARGET_SCREEN_HEIGHT := 1280
   # Force the touch engine to use the Kernel's 'Ghost' range
@@ -285,9 +296,12 @@ endif
 TW_ROTATION := 0
 TW_HWROTATION := 0
 TW_MAX_BRIGHTNESS := 255
-TW_DEFAULT_BRIGHTNESS := 80                   # Set custom brightness, low is better
-TW_INCLUDE_NTFS_3G := true                    # Include NTFS Filesystem Support
-TW_INCLUDE_FUSE_EXFAT := true                 # Include Fuse-ExFAT Filesystem Support
+TW_DEFAULT_BRIGHTNESS := 80                   
+# Set custom brightness, low is better
+TW_INCLUDE_NTFS_3G := true                    
+# Include NTFS Filesystem Support
+TW_INCLUDE_FUSE_EXFAT := true                 
+# Include Fuse-ExFAT Filesystem Support
 TARGET_RECOVERY_SELINUX := permissive
 BOARD_SELINUX_ENFORCING := false
 GRAPHIC_MEMORY_PROVIDER := ump
@@ -481,7 +495,8 @@ TW_FRAMERATE := 30
 BOARD_RECOVERY_SWIPE := false
 # RECOVERY_SDCARD_ON_DATA := false
 BOARD_HAS_NO_REAL_SDCARD := false
-BOARD_HAS_NO_MISC_PARTITION := true         # Delete if your partition table has /misc
+BOARD_HAS_NO_MISC_PARTITION := true
+# Delete if your partition table has /misc
 
 # Twrp Tools
 TW_USE_FB2PNG := false
@@ -546,7 +561,6 @@ BOARD_VENDOR_KERNEL_MODULES := \
 #
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/recovery/root/vendor/firmware/goodix_cfg_group.bin:recovery/root/vendor/firmware/goodix_cfg_group.bin \
-    $(DEVICE_PATH)/recovery/root/vendor/firmware/goodix_firmware.bin:recovery/root/vendor/firmware/goodix_firmware.bin
-
-PRODUCT_COPY_FILES += $(LOCAL_PATH)/prebuilt/zImage:kernel
-PRODUCT_COPY_FILES += $(LOCAL_PATH)/prebuilt/dtbo.img:dtbo
+    $(DEVICE_PATH)/recovery/root/vendor/firmware/goodix_firmware.bin:recovery/root/vendor/firmware/goodix_firmware.bin \
+    $(LOCAL_PATH)/prebuilt/zImage:kernel \
+    $(LOCAL_PATH)/prebuilt/dtbo.img:dtbo
